@@ -1,1 +1,12 @@
-# play-features
+# PLAY-Features
+
+Standalone HTML documentation for individual PLAY features. Each feature gets its own folder: `index.html` (links out, no inline styles), `css/style.css`, and `favicon.ico` (copied from `playweb4.x/public/icons/favicon.ico`).
+
+## Features
+
+| Feature            | Folder                                                 | Description                                                                                                                            |
+| ------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| AI Criteria        | [`ai-criteria/`](ai-criteria/index.html)               | Configuring per-answer AI grading criteria on process version questions.                                                               |
+| Sentiment Gradient | [`sentiment-gradient/`](sentiment-gradient/index.html) | How the customer sentiment ring (Summary page) and customer/agent bars (Sentiment Analysis page) render a per-sentence color gradient. |
+
+When adding a new feature folder here, add a row to this table.

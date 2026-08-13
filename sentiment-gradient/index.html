@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentiment Gradient — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#reading-it">How to read the colors</a></li>
+      <li><a href="#summary-ring">Summary page: customer score</a></li>
+      <li><a href="#analysis-bars">Sentiment Analysis: customer &amp; agent</a></li>
+      <li><a href="#fallback">When nothing shows up</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+        Sentiment Visualization
+      </span>
+      <h1>Sentiment Gradient</h1>
+      <p class="lede">The customer sentiment ring on the Summary page, and the customer + agent bars on the Sentiment Analysis card, both show a blended color timeline of the conversation instead of a single flat color — so you can see how the mood moved, not just where it ended up.</p>
+      <div class="meta-row">
+        <span class="path"><b>AI Insights tab</b><span class="sep">→</span>Summary panel <span class="sep">·</span> <b>Transcript tab</b><span class="sep">→</span>Sentiment Analysis card</span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What you're looking at</h2>
+      <p class="section-sub">A quick way to spot how a conversation actually went.</p>
+      <p>Both widgets used to show one flat color sized only by the overall score — a call scored 62% drew a bar 62% full, in one color. That hid everything about how the conversation actually moved: a call that started tense and calmed down looked identical to one that was mildly negative the whole way through.</p>
+      <p>Now each part of the conversation is placed in speaking order, colored by how that moment scored, and the colors blend smoothly into one another. Reading the ring clockwise, or the bar left to right, shows you the shape of the call — not just its ending score.</p>
+      <div class="legend">
+        <span class="swatch"><span class="dot" style="background: var(--sent-neg)"></span> Negative (0–40)</span>
+        <span class="swatch"><span class="dot" style="background: var(--sent-neu)"></span> Neutral (41–60)</span>
+        <span class="swatch"><span class="dot" style="background: var(--sent-pos)"></span> Positive (61–100)</span>
+      </div>
+    </section>
+
+    <section id="reading-it">
+      <p class="section-num">02</p>
+      <h2>How to read the colors</h2>
+      <p class="section-sub">A quick example of what's behind the blend.</p>
+      <p>Picture a customer whose conversation had 6 distinct moments, scored in order as they happened:</p>
+
+      <div class="table-wrap">
+        <table class="fields">
+          <thead><tr><th>Moment</th><th>Score</th><th>Reads as</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>30</td><td>Negative</td></tr>
+            <tr><td>2</td><td>35</td><td>Negative</td></tr>
+            <tr><td>3</td><td>50</td><td>Neutral</td></tr>
+            <tr><td>4</td><td>55</td><td>Neutral</td></tr>
+            <tr><td>5</td><td>70</td><td>Positive</td></tr>
+            <tr><td>6</td><td>85</td><td>Positive</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="tight">That sequence renders as one continuous strip:</p>
+      <div class="swatch-strip" style="background: linear-gradient(90deg, var(--sent-neg) 16.67%, var(--sent-neg) 33.33%, var(--sent-neu) 50%, var(--sent-neu) 66.67%, var(--sent-pos) 83.33%, var(--sent-pos) 100%)"></div>
+      <p class="swatch-strip-caption">Notice the colors fade into their neighbors rather than switching instantly — the call reads as a gradual shift from a rough start to a positive finish, not six separate blocks stitched together.</p>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 720 210" role="img" aria-label="Before and after comparison: the old bar was one flat color sized by the overall average score, leaving the rest of the track empty; the new bar uses the six-moment example above as a continuous blended strip, fading from one color into the next.">
+          <defs>
+            <linearGradient id="afterGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="16.67%" style="stop-color: var(--sent-neg)"></stop>
+              <stop offset="33.33%" style="stop-color: var(--sent-neg)"></stop>
+              <stop offset="50%" style="stop-color: var(--sent-neu)"></stop>
+              <stop offset="66.67%" style="stop-color: var(--sent-neu)"></stop>
+              <stop offset="83.33%" style="stop-color: var(--sent-pos)"></stop>
+              <stop offset="100%" style="stop-color: var(--sent-pos)"></stop>
+            </linearGradient>
+          </defs>
+          <text x="20" y="26" font-size="12" font-weight="700" fill="currentColor" opacity="0.75">BEFORE — one color, sized by the average</text>
+          <rect x="20" y="38" width="600" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"></rect>
+          <rect x="20" y="38" width="372" height="16" rx="4" style="fill: var(--sent-pos)"></rect>
+          <text x="400" y="50" font-size="10.5" fill="currentColor" opacity="0.6">— empty —</text>
+          <text x="20" y="72" font-size="10.5" fill="currentColor" opacity="0.7">62% score → bar drawn 62% full, one flat green. No sense of how the call moved.</text>
+
+          <text x="20" y="112" font-size="12" font-weight="700" fill="currentColor" opacity="0.75">AFTER — the example above, as one continuous blend</text>
+          <rect x="20" y="124" width="600" height="16" rx="4" fill="url(#afterGrad)"></rect>
+          <text x="20" y="160" font-size="10.5" fill="currentColor" opacity="0.7">Same overall call, same six moments — but now you can see it opened rough and recovered.</text>
+          <text x="20" y="176" font-size="10.5" fill="currentColor" opacity="0.7">The ring on the Summary page reads the same way, just curved into a circle instead of a straight line.</text>
+        </svg>
+        <figcaption>Nothing new is measured here — it's the same moment-by-moment scoring PLAY already does, just spent on color instead of being averaged into a single number.</figcaption>
+      </figure>
+    </section>
+
+    <section id="summary-ring">
+      <p class="section-num">03</p>
+      <h2>Summary page: customer sentiment score</h2>
+      <p class="section-sub">One ring, always the customer, always on the AI Insights tab.</p>
+      <p>The circular "Customer Sentiment Score" widget on the Summary panel is built the same way — colored moments blended around the ring in the order they happened. The number in the center is still the customer's overall score; the ring around it is the shape behind that number.</p>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-titlebar"><span>AI Insights — Summary</span><span>Customer Sentiment Score</span></div>
+        <div class="mock-body">
+          <div class="progress_circle">
+            <div class="circle" style="background: conic-gradient(#ffffff 0%, #ffffff 0.5%, var(--sent-neg) 17%, var(--sent-neg) 33.5%, var(--sent-neu) 50%, var(--sent-neu) 66.5%, var(--sent-pos) 83%, var(--sent-pos) 99.5%, #ffffff 99.5%, #ffffff 100%)">
+              <div class="inside-circle">68%</div>
+            </div>
+          </div>
+          <div class="ring-caption"><b>Customer Sentiment Score</b><br>68%</div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Only the customer</span>
+        <p>This widget has no agent equivalent — it's specifically the customer-facing headline metric on the Summary panel. Agent sentiment only appears on the Sentiment Analysis card, covered next.</p>
+      </div>
+    </section>
+
+    <section id="analysis-bars">
+      <p class="section-num">04</p>
+      <h2>Sentiment Analysis: customer &amp; agent</h2>
+      <p class="section-sub">Every speaker gets their own row, and their own blended bar.</p>
+      <p>The Sentiment Analysis card, on the Transcript tab, lists every participant — customer first, then agent (and anyone else on the call) — each with a score and a bar. Every row's bar is built independently from that speaker's own moments, so one person having a shorter or bumpier conversation doesn't distort the other's bar.</p>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-titlebar"><span>Transcript — Sentiment Analysis</span><span>Per speaker</span></div>
+        <div class="mock-body" style="align-items: stretch;">
+          <div class="bar-row">
+            <span class="avatar"></span>
+            <span class="who"><span class="name">Customer</span><span class="id">(cust_84a2...)</span></span>
+            <span class="score" style="color: var(--sent-neu)">54%</span>
+            <span class="sentiment_progress" style="background: linear-gradient(90deg, var(--sent-neg) 16.67%, var(--sent-neg) 33.33%, var(--sent-neu) 50%, var(--sent-neu) 66.67%, var(--sent-pos) 83.33%, var(--sent-pos) 100%)"></span>
+          </div>
+          <div class="bar-row">
+            <span class="avatar"></span>
+            <span class="who"><span class="name">Agent</span><span class="id">(agt_priya.k)</span></span>
+            <span class="score" style="color: var(--sent-pos)">81%</span>
+            <span class="sentiment_progress" style="background: linear-gradient(90deg, var(--sent-pos) 20%, var(--sent-pos) 40%, var(--sent-neu) 60%, var(--sent-pos) 80%, var(--sent-pos) 100%)"></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="tight">A few things this makes easy to spot at a glance:</p>
+      <ul class="plain">
+        <li>Whether the customer or the agent shifted mood first — compare where each bar's color changes.</li>
+        <li>Any number of speakers on a call (not just two) get their own row and bar, laid out the same way.</li>
+        <li>The percentage next to each bar is that speaker's overall score — the bar next to it is the detail behind that number.</li>
+      </ul>
+    </section>
+
+    <section id="fallback">
+      <p class="section-num">05</p>
+      <h2>When nothing shows up</h2>
+      <p class="section-sub">A blank space means "not scored yet," not an error.</p>
+      <p>If a speaker's moment-by-moment sentiment hasn't been scored yet, the ring or bar for that speaker simply doesn't appear rather than showing a guess:</p>
+      <ul class="plain">
+        <li><b>Sentiment Analysis bars</b> — the bar for that row is left blank; the score percentage next to it still shows whatever's available, or "N/A".</li>
+        <li><b>Summary ring</b> — the ring stays empty until scoring is available for that record.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · AI Insights &amp; Transcript — Sentiment Gradient
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
