@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Criteria — PLAY Configuration Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#where">Where to find it</a></li>
+      <li><a href="#configure">Configuring criteria</a></li>
+      <li><a href="#status">Reading the status icon</a></li>
+      <li><a href="#editing">Editing &amp; unsaved drafts</a></li>
+      <li><a href="#published">Draft vs. published</a></li>
+      <li><a href="#review">What reviewers see</a></li>
+      <li><a href="#reference">Field reference</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+        Process Version Setting
+      </span>
+      <h1>AI Criteria</h1>
+      <p class="lede">Tell the rating AI exactly what evidence should earn each answer on a question — so scoring is explainable instead of a black box, and consistent across every review.</p>
+      <div class="meta-row">
+        <span class="path"><b>Settings</b><span class="sep">→</span><b>Process</b><span class="sep">→</span><b>Process Version</b><span class="sep">→</span>a question row</span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A short primer before you configure anything.</p>
+      <p>Every rating question already has an answer type — Yes/No, a numeric scale, a custom set of options. <b>AI Criteria</b> lets you attach a written checklist to <em>each individual answer</em>, describing what the AI should hear or read in the transcript before it's allowed to land on that answer.</p>
+      <p class="tight">For example, a "Did the agent verify the customer's identity?" question might carry:</p>
+      <ul class="plain">
+        <li><b>Yes</b> — "Agent asked for and confirmed name, DOB, and account number"; "Agent cross-checked the answer against account records"</li>
+        <li><b>No</b> — "Agent skipped verification entirely"; "Agent accepted an unconfirmed answer"</li>
+      </ul>
+      <p>Without criteria, the AI infers intent from the question text alone. With criteria, it grades against your own written standard — and shows its reasoning back to reviewers.</p>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 720 260" role="img" aria-label="Diagram: transcript and AI Criteria both feed the AI scoring step; scoring outputs confidence and evidence as before, plus a new criteriaAnswer showing which written criterion matched.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+            </marker>
+            <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill: var(--accent)"></path>
+            </marker>
+          </defs>
+
+          <!-- existing input -->
+          <rect x="20" y="30" width="170" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="105" y="62" text-anchor="middle" font-size="13" fill="currentColor">Call/chat transcript</text>
+
+          <!-- new input -->
+          <rect x="20" y="176" width="170" height="64" rx="8" fill="none" style="stroke: var(--accent)" stroke-width="1.6"></rect>
+          <text x="105" y="203" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--accent)">AI Criteria</text>
+          <text x="105" y="220" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75">saved per answer option</text>
+          <text x="105" y="234" text-anchor="middle" font-size="10.5" style="fill: var(--accent)">— added by this feature</text>
+
+          <!-- scoring -->
+          <rect x="290" y="88" width="160" height="70" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="370" y="118" text-anchor="middle" font-size="13" fill="currentColor">AI scoring</text>
+          <text x="370" y="135" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75">per question, per answer</text>
+
+          <!-- existing output -->
+          <rect x="530" y="30" width="170" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="615" y="62" text-anchor="middle" font-size="13" fill="currentColor">Confidence + evidence</text>
+
+          <!-- new output -->
+          <rect x="530" y="176" width="170" height="64" rx="8" fill="none" style="stroke: var(--accent)" stroke-width="1.6"></rect>
+          <text x="615" y="203" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--accent)">criteriaAnswer</text>
+          <text x="615" y="220" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.75">which criterion matched</text>
+          <text x="615" y="234" text-anchor="middle" font-size="10.5" style="fill: var(--accent)">— added by this feature</text>
+
+          <!-- arrows -->
+          <line x1="190" y1="57" x2="284" y2="112" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"></line>
+          <text x="220" y="72" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.8">transcript text</text>
+
+          <line x1="190" y1="208" x2="284" y2="138" style="stroke: var(--accent)" stroke-width="1.5" marker-end="url(#arrow-accent)"></line>
+          <text x="222" y="195" text-anchor="middle" font-size="10.5" style="fill: var(--accent)">your written checklist</text>
+
+          <line x1="450" y1="112" x2="524" y2="57" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"></line>
+          <text x="490" y="72" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.8">score + evidence</text>
+
+          <line x1="450" y1="138" x2="524" y2="208" style="stroke: var(--accent)" stroke-width="1.5" marker-end="url(#arrow-accent)"></line>
+          <text x="500" y="195" text-anchor="middle" font-size="10.5" style="fill: var(--accent)">reasoning vs. criteria</text>
+        </svg>
+        <figcaption>What AI Criteria actually changes: the scoring step already turned a transcript into a confidence score with evidence. Configuring criteria on a question adds a second input (your written checklist) and a second output (<code class="field">criteriaAnswer</code>) — reviewers see which specific criterion the AI judged as met, not just that it was confident.</figcaption>
+      </figure>
+    </section>
+
+    <section id="where">
+      <p class="section-num">02</p>
+      <h2>Where to find it</h2>
+      <p class="section-sub">The panel lives inside the question row, not in a separate settings page.</p>
+      <p>Open <b>Settings → Process → Process Version</b>, expand a category, and either edit an existing question or add a new one. AI Criteria appears as its own panel directly beneath the question's Code / Text / Type / Weightage row — it's part of that same question editor, not a separate screen.</p>
+    </section>
+
+    <section id="configure">
+      <p class="section-num">03</p>
+      <h2>Configuring criteria</h2>
+      <p class="section-sub">Walk through enabling the toggle and writing your first checklist.</p>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the question for editing</div>
+          <div class="step-body">Click the edit icon on the question row. The AI Criteria panel appears below the row once an answer type is selected.</div>
+        </li>
+        <li>
+          <div class="step-title">Turn on the AI Criteria switch</div>
+          <div class="step-body">Off by default. Until it's on, the panel just shows a hint — no criteria are collected or sent.</div>
+        </li>
+        <li>
+          <div class="step-title">Pick an answer option's tab</div>
+          <div class="step-body">Tabs list every option for the question's answer type (e.g. Yes / No). Criteria are written per option, not once for the whole question.</div>
+        </li>
+        <li>
+          <div class="step-title">Add criteria, one line at a time</div>
+          <div class="step-body">Type a criterion and press Enter or click the add button. Repeat for as many lines as the option needs, then switch tabs to cover the other options.</div>
+        </li>
+        <li>
+          <div class="step-title">Save the question</div>
+          <div class="step-body">The save action commits the question text and every criterion across all tabs together — not one tab at a time.</div>
+        </li>
+      </ol>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-titlebar">
+          <span>Process Version — Category · Question</span>
+          <span>Editing</span>
+        </div>
+        <div class="mock-body">
+          <div class="row-line">
+            <span class="cell dim">Q12</span>
+            <span class="cell q">Did the agent verify the customer's identity?</span>
+            <span class="cell dim">Yes / No</span>
+            <span class="cell dim">10 pts</span>
+            <span></span>
+          </div>
+          <div class="criteria-panel">
+            <div class="criteria-head">
+              <span class="criteria-title">
+                <span class="ai-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></span>
+                AI Criteria
+              </span>
+              <span class="switch"></span>
+            </div>
+            <div class="tabs">
+              <span class="tab active pos">Yes</span>
+              <span class="tab inactive neg">No</span>
+            </div>
+            <div class="criteria-item"><span>Agent asked for and confirmed name, DOB, and account number</span><span class="x">✕</span></div>
+            <div class="criteria-item"><span>Agent cross-checked the answer against account records</span><span class="x">✕</span></div>
+            <div class="criteria-input">
+              <span class="field">Enter criteria for Yes…</span>
+              <span class="add">+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Good to know</span>
+        <p>Only the option you're currently viewing gets edited by the input box — switching tabs doesn't lose what you typed on another tab; it's held separately per option until you save.</p>
+      </div>
+    </section>
+
+    <section id="status">
+      <p class="section-num">04</p>
+      <h2>Reading the status icon</h2>
+      <p class="section-sub">The AI icon on a question row is a truth indicator, not a toggle mirror.</p>
+      <p>Once saved, questions with real criteria show a small AI icon in the actions column — click it to expand a read-only view of everything saved for that question, without entering edit mode.</p>
+      <div class="callout warn">
+        <span class="label">Enabled ≠ configured</span>
+        <p>The icon only appears once at least one criterion has actually been saved on at least one answer option. Turning the switch on and saving with every list still empty does <em>not</em> light up the icon — it deliberately reflects real content, not just the flag.</p>
+      </div>
+    </section>
+
+    <section id="editing">
+      <p class="section-num">05</p>
+      <h2>Editing, removing, and unsaved drafts</h2>
+      <p class="section-sub">Nothing you type gets silently discarded.</p>
+      <ul class="plain">
+        <li><b>Remove a criterion</b> — click the ✕ next to any line in the current tab. It's removed from that option's list immediately (still needs Save to persist).</li>
+        <li><b>Close without saving</b> — if every input box is empty, the panel just closes and reverts to the last saved state.</li>
+        <li><b>Close with text still typed</b> — if you've typed a criterion but haven't clicked add, closing prompts: <i>"You have a criteria that has not been added yet. Add it and save now?"</i> Confirming folds that text in and saves; you're never forced to choose between losing it and re-opening the editor.</li>
+      </ul>
+    </section>
+
+    <section id="published">
+      <p class="section-num">06</p>
+      <h2>Draft vs. published versions</h2>
+      <p class="section-sub">Criteria can be updated in both — the rest of the question can't.</p>
+      <p>On a <b>draft</b> version, every field is editable: code, text, answer type, weightage, and AI Criteria. On a <b>published</b> version, the question's code, answer type, and weightage are locked — but its text and AI Criteria can still be updated in place, so criteria can be refined after a process has gone live without cutting a new version.</p>
+    </section>
+
+    <section id="review">
+      <p class="section-num">07</p>
+      <h2>What reviewers see</h2>
+      <p class="section-sub">Criteria don't just steer the score — they show up in the reasoning.</p>
+      <p>On the recording detail page's <b>AI Ratings</b> panel, each answer already shows a confidence percentage with collapsible evidence. When AI Criteria is configured on that question, the AI's stated reason for matching your criteria appears alongside the transcript evidence in that same expandable panel — so a reviewer can see exactly which of your written criteria the AI judged as met.</p>
+
+      <div class="review-card" aria-hidden="true">
+        <div class="review-q">Did the agent verify the customer's identity?</div>
+        <div class="review-a yes">Yes</div>
+        <div class="review-conf">(Confidence — 92%) ▲</div>
+        <div class="review-evidence">
+          <span class="tag">Transcript evidence</span>
+          <span>"Can I get your name, date of birth, and account number to verify you?"</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="reference">
+      <p class="section-num">08</p>
+      <h2>Field reference</h2>
+      <p class="section-sub">For anyone integrating with or reading raw question/rating data.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Field</th><th>Lives on</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">aiCriteriaEnabled</code></td>
+              <td>Question</td>
+              <td class="desc">Whether the AI Criteria switch is on for this question. Saved independently of whether any criteria exist yet.</td>
+            </tr>
+            <tr>
+              <td><code class="field">aiCriteria</code></td>
+              <td>Question</td>
+              <td class="desc">Map of answer-option value → list of criteria strings, e.g. <code class="field">{ yes: [...], no: [...] }</code>. Cleared to <code class="field">{}</code> whenever the switch is off at save time.</td>
+            </tr>
+            <tr>
+              <td><code class="field">criteriaAnswer</code></td>
+              <td>AI rating response</td>
+              <td class="desc">The AI's stated justification against your criteria for a given answer, shown next to transcript evidence on the AI Ratings panel.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Process Version Settings — AI Criteria
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
