@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Record Media Lookup — PLAY Configuration Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#modes">Two ways to use it</a></li>
+      <li><a href="#params">Paging through a list</a></li>
+      <li><a href="#single">Example: one recording</a></li>
+      <li><a href="#list">Example: a page of recordings</a></li>
+      <li><a href="#faq">Good to know</a></li>
+      <li><a href="#reference">Field reference</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        Recordings
+      </span>
+      <h1>Record Media Lookup</h1>
+      <p class="lede">One endpoint gets you the playable link for a single call or chat recording, or a browsable page of recordings for a whole process and channel — which one you get back depends only on whether you tell it which recording you want.</p>
+      <div class="meta-row">
+        <span class="method-badge"><span class="verb">GET</span><span class="route">/play-api/record-media/:campaign/:channel</span></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this endpoint does</h2>
+      <p class="section-sub">A short primer before you send a request.</p>
+      <p>Every recorded interaction — a call, chat, or email — has a media file sitting somewhere your storage is configured to keep it. This endpoint turns that internal storage location into a link you can actually play or download, so a client app never needs to know how or where a recording is stored.</p>
+      <p class="tight">It supports two distinct requests behind one route:</p>
+      <ul class="plain">
+        <li><b>Look up one recording</b> — you already know its Record ID or Session ID, and want its link back.</li>
+        <li><b>Browse recordings</b> — you want a page of what's available for a process and channel, e.g. to populate a recordings list in a dashboard.</li>
+      </ul>
+    </section>
+
+    <section id="modes">
+      <p class="section-num">02</p>
+      <h2>Two ways to use it</h2>
+      <p class="section-sub">Sending an ID switches the whole response shape — there's no separate flag to set.</p>
+      <div class="mode-grid">
+        <div class="mode-card">
+          <span class="num">1</span>
+          <h3>Get one recording</h3>
+          <p>You already know which interaction you want.</p>
+          <div class="when">Send <b>recordId</b> or <b>xsessid</b> &rarr; you get back one playback link.</div>
+        </div>
+        <div class="mode-card">
+          <span class="num">2</span>
+          <h3>Browse recordings</h3>
+          <p>You want to see what's available for a process and channel.</p>
+          <div class="when">Leave out <b>recordId</b> and <b>xsessid</b> &rarr; you get back a page of recordings for that campaign + channel.</div>
+        </div>
+      </div>
+      <div class="callout note">
+        <span class="label">Good to know</span>
+        <p>If you send both an ID and paging params in the same request, the ID wins — the request always resolves to single-recording mode, and <code class="field">limit</code>/<code class="field">offset</code>/<code class="field">includecount</code> are silently ignored.</p>
+      </div>
+    </section>
+
+    <section id="params">
+      <p class="section-num">03</p>
+      <h2>Paging through a list</h2>
+      <p class="section-sub">Three optional settings control what a "browse" request gives you back. None of them do anything in single-lookup mode.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">limit</span>
+            <span class="default">default 20</span>
+          </div>
+          <div class="body">
+            <p>How many recordings to return in one page. Ask for more than 30 and you'll still only get 30 back — that ceiling keeps responses fast. An unreadable or missing value falls back to the default.</p>
+            <p class="example">e.g. <code class="field">limit=10</code> &rarr; up to 10 recordings per page.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">offset</span>
+            <span class="default">default 0</span>
+          </div>
+          <div class="body">
+            <p>How many recordings to skip before your page starts. Pair it with <code class="field">limit</code> to move through pages: page 1 is <code class="field">offset=0</code>, page 2 is <code class="field">offset=limit</code>, page 3 is <code class="field">offset=limit&times;2</code>, and so on.</p>
+            <p class="example">e.g. <code class="field">limit=20&amp;offset=20</code> &rarr; recordings 21&ndash;40.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">includecount</span>
+            <span class="default">default off</span>
+          </div>
+          <div class="body">
+            <p>Set to <code class="field">true</code> when you need to show something like "showing 20 of 3,464" or build page numbers. It adds a <code class="field">totalCount</code> field with the full count of matching recordings, not just this page's size.</p>
+            <p class="example">Leave it off for a simple "load more" flow — the total costs an extra database round-trip on every request.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="label">Invalid values don't error</span>
+        <p>A missing, empty, or non-numeric <code class="field">limit</code> falls back to 20; anything over 30 is capped at 30. A missing, non-numeric, or negative <code class="field">offset</code> falls back to 0. Only the literal string <code class="field">"true"</code> (case-insensitive) turns <code class="field">includecount</code> on — anything else, including <code class="field">1</code> or a missing value, is treated as off.</p>
+      </div>
+    </section>
+
+    <section id="single">
+      <p class="section-num">04</p>
+      <h2>Example: getting one recording</h2>
+      <p class="section-sub">Send an ID, get back one link.</p>
+
+      <h3>Request <span class="pill-tag">by xsessid</span></h3>
+      <div class="console">
+        <div class="console-label">request</div>
+        <pre><code>GET /play-api/record-media/CROSSX_PROCESS/call?xsessid=bf8a812dec0e4b458184fcc67dc1bb1e
+x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
+      </div>
+
+      <h3>Response <span class="pill-tag">200</span></h3>
+      <div class="console">
+        <div class="console-label">response</div>
+        <pre><code>{
+  <span class="k">"status"</span>: 200,
+  <span class="k">"mediaFileName"</span>: <span class="s">"...20251202124058_3508498034245506.wav"</span>,
+  <span class="k">"mediaFilePath"</span>: <span class="s">"http://.../play-api/media/<span class="redacted">&lt;link&gt;</span>.wav"</span>,
+  <span class="k">"timeStamp"</span>: <span class="s">"2026-08-19 17:09:20"</span>
+}</code></pre>
+      </div>
+      <p class="example-note"><code class="field">mediaFilePath</code> is the link to play or download that recording. Token and link shortened here for this document — yours will be a full working URL.</p>
+    </section>
+
+    <section id="list">
+      <p class="section-num">05</p>
+      <h2>Example: browsing a page of recordings</h2>
+      <p class="section-sub">Leave out the ID, get back a page.</p>
+
+      <h3>Request <span class="pill-tag">limit, offset, includecount</span></h3>
+      <div class="console">
+        <div class="console-label">request</div>
+        <pre><code>GET /play-api/record-media/CROSSX_PROCESS/call?limit=5&amp;offset=0&amp;includecount=true
+x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
+      </div>
+
+      <h3>Response <span class="pill-tag">200</span></h3>
+      <div class="console">
+        <div class="console-label">response</div>
+        <pre><code>{
+  <span class="k">"status"</span>: 200,
+  <span class="k">"records"</span>: [
+    { <span class="k">"mediaFileName"</span>: <span class="s">"...20250926201055.wav"</span>, <span class="k">"mediaFilePath"</span>: <span class="s">"http://.../<span class="redacted">&lt;link&gt;</span>.wav"</span> },
+    { <span class="k">"mediaFileName"</span>: <span class="s">"...20250926202207...wav"</span>, <span class="k">"mediaFilePath"</span>: <span class="s">"http://.../<span class="redacted">&lt;link&gt;</span>.wav"</span> },
+    <span class="m">// ...3 more (5 total, matching limit=5)</span>
+  ],
+  <span class="k">"timeStamp"</span>: <span class="s">"2026-08-19 17:10:03"</span>,
+  <span class="k">"totalCount"</span>: 3464
+}</code></pre>
+      </div>
+      <p class="example-note">5 recordings on this page, out of 3,464 total for this process + channel. To see the next 5, repeat the request with <code class="field">offset=5</code>.</p>
+    </section>
+
+    <section id="faq">
+      <p class="section-num">06</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">A few things that come up once you start integrating.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <p class="q">Why might a recording be missing from a browsed list?</p>
+          <p class="a">Only recordings whose storage location resolves to a real, playable link are included — if one can't be resolved, it's quietly left out of the page rather than returned broken.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Does <code class="field">includecount</code> do anything for a single lookup?</p>
+          <p class="a">No — it's ignored whenever <code class="field">recordId</code> or <code class="field">xsessid</code> is present, since a single-recording response is never paginated or counted.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I raise the 30-record page cap?</p>
+          <p class="a">That ceiling is configurable on the server (via <code class="field">RECORD_URL_MAX_LIMIT</code>) — if your integration regularly needs bigger pages, ask whoever manages the deployment rather than assuming a client-side <code class="field">limit</code> can exceed it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="reference">
+      <p class="section-num">07</p>
+      <h2>Field reference</h2>
+      <p class="section-sub">Every query parameter this endpoint reads.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Param</th><th>Applies to</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">recordId</code></td>
+              <td>—</td>
+              <td class="desc">Exact record ID. If present, forces single-lookup mode.</td>
+            </tr>
+            <tr>
+              <td><code class="field">xsessid</code></td>
+              <td>—</td>
+              <td class="desc">Exact session ID. If present, forces single-lookup mode.</td>
+            </tr>
+            <tr>
+              <td><code class="field">limit</code></td>
+              <td>List only</td>
+              <td class="desc">Records per page. Default 20, clamped 1&ndash;30.</td>
+            </tr>
+            <tr>
+              <td><code class="field">offset</code></td>
+              <td>List only</td>
+              <td class="desc">Records to skip before the page starts. Default 0.</td>
+            </tr>
+            <tr>
+              <td><code class="field">includecount</code></td>
+              <td>List only</td>
+              <td class="desc">Set <code class="field">true</code> to add <code class="field">totalCount</code> to the response.</td>
+            </tr>
+            <tr>
+              <td><code class="field">content_format</code></td>
+              <td>Single lookup</td>
+              <td class="desc">Output format hint for chat/email channels (e.g. <code class="field">json</code>, <code class="field">txt</code>, <code class="field">pdf</code>).</td>
+            </tr>
+            <tr>
+              <td><code class="field">xconnid</code></td>
+              <td>Single lookup</td>
+              <td class="desc">Picks a specific connection leg's media within one record instead of the top-level session media.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Recordings — Record Media Lookup
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
