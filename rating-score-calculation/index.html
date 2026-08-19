@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rating Total Score — PLAY Calculation Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#ingredients">The three ingredients</a></li>
+      <li><a href="#formula">Step 1 — score a single question</a></li>
+      <li><a href="#rollup">Step 2 — roll a category up</a></li>
+      <li><a href="#na">Step 3 — handling N/A</a></li>
+      <li><a href="#examples">Three examples side by side</a></li>
+      <li><a href="#example">Full worked example</a></li>
+      <li><a href="#reference">Field reference</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        AI Rating Scoring
+      </span>
+      <h1>How the total score is calculated</h1>
+      <p class="lede">A recording's rating total score is a weighted roll-up of every answered question — category weight × question weight × answer weight — with N/A answers excluded and everything else renormalized to fill the gap they leave.</p>
+      <div class="meta-row">
+        <span class="path"><b>Recording Detail</b><span class="sep">→</span><b>AI Ratings panel</b><span class="sep">→</span><b>Total Score</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What "total score" means</h2>
+      <p class="section-sub">One number, built from many small ones.</p>
+      <p>Every rated recording is scored against a <b>process version</b>: a set of categories (Opening, Tone, Resolution, Closing…), each holding a handful of questions (<i>"Did the agent greet the customer?"</i>). A reviewer — or the AI — answers each question from a fixed option list (e.g. <span class="answer-tag good">Good</span> <span class="answer-tag average">Average</span> <span class="answer-tag poor">Poor</span> <span class="answer-tag na">N/A</span>), and each option carries its own percentage.</p>
+      <p>The <code class="field">totalScore</code> stored on the rating is the weighted average of every answered question, expressed as a single percentage out of 100.</p>
+    </section>
+
+    <section id="ingredients">
+      <p class="section-num">02</p>
+      <h2>The three ingredients</h2>
+      <p class="section-sub">Every question's contribution comes from multiplying three independent weights together.</p>
+
+      <div class="method-grid">
+        <div class="method-step">
+          <span class="step-num">Category weightage</span>
+          <span class="step-text"><b>How much this category is worth</b> out of the whole assessment. All categories on a process version sum to 100%.</span>
+        </div>
+        <div class="method-step">
+          <span class="step-num">Question weightage</span>
+          <span class="step-text"><b>How much this question is worth</b> inside its own category. A category's own questions sum to 100% — this number is never compared across categories.</span>
+        </div>
+        <div class="method-step">
+          <span class="step-num">Answer weightage</span>
+          <span class="step-text"><b>What the chosen answer is worth</b> — a percentage configured per answer option, e.g. Good = 100%, Average = 60%, Poor = 30%.</span>
+        </div>
+      </div>
+
+      <p class="tight">The critical thing to hold onto: <b>question weightage is a percentage of its category</b>, not of the whole assessment. A question's 25% means something different depending on whether its category is worth 15% or 25% of the total — keep the two weight levels separate until the final multiply.</p>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 720 200" role="img" aria-label="Diagram: category weightage, question weightage inside that category, and answer weightage combine per question, and every question's contribution sums to the total score.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          <rect x="16" y="20" width="150" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="91" y="43" text-anchor="middle" font-size="12.5" fill="currentColor">Category weightage</text>
+          <text x="91" y="60" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">e.g. 15% of assessment</text>
+
+          <rect x="16" y="100" width="150" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="91" y="123" text-anchor="middle" font-size="12.5" fill="currentColor">Question weightage</text>
+          <text x="91" y="140" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">e.g. 25% of category</text>
+
+          <rect x="16" y="160" width="0" height="0"></rect>
+
+          <rect x="16" y="145" width="0" height="0"></rect>
+
+          <rect x="16" y="145" width="0" height="0" opacity="0"></rect>
+
+          <rect x="290" y="60" width="150" height="54" rx="8" fill="none" style="stroke: var(--accent)" stroke-width="1.6"></rect>
+          <text x="365" y="83" text-anchor="middle" font-size="12.5" font-weight="700" style="fill: var(--accent)">Answer weightage</text>
+          <text x="365" y="100" text-anchor="middle" font-size="11" style="fill: var(--accent)" opacity="0.85">e.g. Good = 100%</text>
+
+          <rect x="540" y="60" width="164" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+          <text x="622" y="83" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">Question contribution</text>
+          <text x="622" y="100" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">added into total score</text>
+
+          <line x1="166" y1="47" x2="284" y2="80" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"></line>
+          <line x1="166" y1="127" x2="284" y2="90" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"></line>
+          <line x1="440" y1="87" x2="534" y2="87" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow)"></line>
+        </svg>
+        <figcaption>Category weightage, question weightage (scoped to that category), and answer weightage all multiply together to produce one question's contribution to the total.</figcaption>
+      </figure>
+    </section>
+
+    <section id="formula">
+      <p class="section-num">03</p>
+      <h2>Step 1 — score a single question</h2>
+      <p class="section-sub">The per-question formula, with no N/A in the picture yet.</p>
+      <p>For one answered question:</p>
+
+      <div class="formula-block">
+        <span class="formula-label">Per-question contribution</span>
+        <code>contribution = (questionWeightage × answerWeightage ÷ 100) × (categoryWeightage ÷ 100)</code>
+        <p class="formula-note">questionWeightage is % of its category · categoryWeightage is % of the whole assessment · answerWeightage is the % configured for the chosen option.</p>
+      </div>
+
+      <p class="tight">Example — a question worth <b>25%</b> of a category worth <b>15%</b> of the assessment, answered <span class="answer-tag good">Good</span> (100%):</p>
+      <div class="formula-block">
+        <code>(25 × 100 ÷ 100) × (15 ÷ 100) = 25 × 0.15 = 3.75</code>
+        <p class="formula-note">That single question adds 3.75 percentage points to the recording's total score.</p>
+      </div>
+    </section>
+
+    <section id="rollup">
+      <p class="section-num">04</p>
+      <h2>Step 2 — roll a category up, then sum every category</h2>
+      <p class="section-sub">The total score is just this contribution, summed over every answered question, everywhere.</p>
+      <div class="formula-block">
+        <span class="formula-label">Total score</span>
+        <code>totalScore = Σ over all answered questions of contribution</code>
+      </div>
+      <p>If a process version has 6 categories of 4 questions each, and <em>every single question is answered</em> (no N/A anywhere), this sum naturally lands on 100% when every answer is Good — because the category weights already sum to 100%, and each category's question weights already sum to 100%. The moment any question comes back N/A, that stops being true unless something redistributes the weight it leaves behind — which is Step 3.</p>
+    </section>
+
+    <section id="na">
+      <p class="section-num">05</p>
+      <h2>Step 3 — handling N/A answers</h2>
+      <p class="section-sub">The part that's easy to get wrong when reading a rating by hand.</p>
+
+      <p>A question answered <span class="answer-tag na">N/A</span> contributes nothing — but its weight can't just vanish, or the remaining weights no longer sum to 100% and the total score deflates. The weight has to be <b>redistributed</b> to the questions and categories that still have an answer. That redistribution happens at <b>two independent levels</b>, matching the two independent weight scopes from Step 1:</p>
+
+      <div class="method-grid">
+        <div class="method-step">
+          <span class="step-num">A — within the category</span>
+          <span class="step-text">If some (not all) of a category's questions are N/A, the category's own question weights are renormalized across only its <i>answered</i> questions, so they still sum to 100% of that category.</span>
+        </div>
+        <div class="method-step">
+          <span class="step-num">B — across categories</span>
+          <span class="step-text">If <i>every</i> question in a category is N/A, the whole category drops out, and category weightages are renormalized across only the categories that still have at least one answered question, so they still sum to 100%.</span>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Why two separate levels</span>
+        <p>Question weightage only ever means something <em>within its own category</em>, and category weightage only ever means something <em>across the whole assessment</em>. Redistributing N/A weight has to respect that same boundary — level A stays inside one category, level B moves between categories — otherwise a question's weight would leak into categories it was never scoped to.</p>
+      </div>
+
+      <h3>Micro-example — level A only</h3>
+      <p class="tight">One category, worth 15% of the assessment, with 4 equally-weighted questions (25% each). Three are answered Good; the fourth comes back N/A.</p>
+
+      <div class="calc-table-wrap">
+        <div class="calc-table-scroll">
+          <table class="calc">
+            <thead>
+              <tr><th>Question</th><th class="num">Original Q Wgt</th><th>Answer</th><th class="num">Renormalized Q Wgt</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Q1</td><td class="num">25%</td><td><span class="answer-tag good">Good</span></td><td class="num">33.33%</td></tr>
+              <tr><td>Q2</td><td class="num">25%</td><td><span class="answer-tag good">Good</span></td><td class="num">33.33%</td></tr>
+              <tr><td>Q3</td><td class="num">25%</td><td><span class="answer-tag good">Good</span></td><td class="num">33.33%</td></tr>
+              <tr class="na-row"><td>Q4</td><td class="num">25%</td><td><span class="answer-tag na">N/A</span></td><td class="num">— (0%)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="tight">The category's weight (15%) is untouched — only the 25% that Q4 would have carried is redistributed across Q1–Q3.</p>
+
+      <div class="formula-block">
+        <span class="formula-label">Renormalizing Q1–Q3</span>
+        <code>25 ÷ 75 × 100 = 33.33% each</code>
+        <p class="formula-note">75 is the combined original weight of the three still-answered questions (25 + 25 + 25) — Q4's 25% is folded back in across them.</p>
+      </div>
+
+      <p class="tight">The category still scores out of a full 100% internally; it's just resting on 3 questions instead of 4.</p>
+    </section>
+
+    <section id="examples">
+      <p class="section-num">06</p>
+      <h2>Three examples, side by side</h2>
+      <p class="section-sub">Same two categories throughout — Verification (40% of the assessment) and Resolution (60%) — so only the N/A pattern changes between them.</p>
+
+      <h3>Example A — no N/A, the clean case</h3>
+      <p class="tight">Every question answered. Nothing to redistribute — weights are used exactly as configured.</p>
+      <div class="calc-table-wrap">
+        <div class="calc-table-scroll">
+          <table class="calc" id="ex-a-table">
+            <thead>
+              <tr><th>Category</th><th class="num">Orig. Cat Wgt</th><th class="num">Adj. Cat Wgt</th><th>Question</th><th class="num">Adj. Q Wgt</th><th>Answer</th><th class="num">Ans Wgt</th><th class="num">Contribution</th></tr>
+            </thead>
+            <tbody id="ex-a-body"></tbody>
+            <tfoot><tr><td colspan="7">Total score</td><td class="num" id="ex-a-total">—</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <h3>Example B — partial N/A, one question inside a category</h3>
+      <p class="tight">Verification's 4th question comes back N/A. Level A kicks in: Verification's other 3 questions absorb its 25%.</p>
+
+      <div class="formula-block">
+        <span class="formula-label">Renormalizing Verification's remaining questions</span>
+        <code>25 ÷ 75 × 100 = 33.33% each</code>
+        <p class="formula-note">Both categories still have at least one answer, so category weights (40% / 60%) don't move at all — only Verification's own question weights shift.</p>
+      </div>
+
+      <div class="calc-table-wrap">
+        <div class="calc-table-scroll">
+          <table class="calc" id="ex-b-table">
+            <thead>
+              <tr><th>Category</th><th class="num">Orig. Cat Wgt</th><th class="num">Adj. Cat Wgt</th><th>Question</th><th class="num">Adj. Q Wgt</th><th>Answer</th><th class="num">Ans Wgt</th><th class="num">Contribution</th></tr>
+            </thead>
+            <tbody id="ex-b-body"></tbody>
+            <tfoot><tr><td colspan="7">Total score</td><td class="num" id="ex-b-total">—</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <h3>Example C — a whole category comes back N/A</h3>
+      <p class="tight">All 4 of Verification's questions are N/A this time — the category itself has nothing to contribute. Level B kicks in: Verification drops out entirely, and Resolution — the only category left with an answer — is renormalized up to the full 100%.</p>
+
+      <div class="formula-block">
+        <span class="formula-label">Renormalizing category weights (only Resolution survives)</span>
+        <code>60 ÷ 60 × 100 = 100%</code>
+        <p class="formula-note">Verification's 40% isn't added to Resolution as a bonus — it simply leaves the denominator, so Resolution's original 60% becomes the entire assessment.</p>
+      </div>
+
+      <div class="calc-table-wrap">
+        <div class="calc-table-scroll">
+          <table class="calc" id="ex-c-table">
+            <thead>
+              <tr><th>Category</th><th class="num">Orig. Cat Wgt</th><th class="num">Adj. Cat Wgt</th><th>Question</th><th class="num">Adj. Q Wgt</th><th>Answer</th><th class="num">Ans Wgt</th><th class="num">Contribution</th></tr>
+            </thead>
+            <tbody id="ex-c-body"></tbody>
+            <tfoot><tr><td colspan="7">Total score</td><td class="num" id="ex-c-total">—</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-card">
+          <span class="sc-label">A — No N/A</span>
+          <span class="sc-value" id="ex-a-summary">—</span>
+          <span class="sc-note">Both categories fully answered</span>
+        </div>
+        <div class="score-card">
+          <span class="sc-label">B — Partial N/A</span>
+          <span class="sc-value" id="ex-b-summary">—</span>
+          <span class="sc-note">Weight A holds, only its weakest question dropped</span>
+        </div>
+        <div class="score-card good">
+          <span class="sc-label">C — Full-category N/A</span>
+          <span class="sc-value" id="ex-c-summary">—</span>
+          <span class="sc-note">Verification excluded, Resolution carries 100%</span>
+        </div>
+      </div>
+      <p class="tight">Same underlying Resolution answers in all three (90%) — what moves the total is purely how much of the assessment Verification is still eligible to count for.</p>
+    </section>
+
+    <section id="example">
+      <p class="section-num">07</p>
+      <h2>Full worked example</h2>
+      <p class="section-sub">6 categories, 4 questions each, weighted 15 / 15 / 15 / 15 / 15 / 25 — two categories fully N/A.</p>
+
+      <p>Category 3 and Category 4 come back completely N/A (every question) — that's level B: they drop out entirely, and the remaining four categories' weights are renormalized to fill the 30% they leave behind. Category 5 and 6 have every question answered, but with a mix of options, so <span class="answer-tag good">Good</span> (100%), <span class="answer-tag average">Average</span> (60%), and <span class="answer-tag poor">Poor</span> (30%) all appear.</p>
+
+      <div class="calc-table-wrap">
+        <div class="calc-table-scroll">
+          <table class="calc">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="num">Orig. Cat Wgt</th>
+                <th class="num">Adj. Cat Wgt</th>
+                <th>Question</th>
+                <th class="num">Adj. Q Wgt</th>
+                <th>Answer</th>
+                <th class="num">Ans Wgt</th>
+                <th class="num">Contribution</th>
+              </tr>
+            </thead>
+            <tbody id="calc-body"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="7">Total score</td>
+                <td class="num" id="calc-total">—</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <span class="formula-label">Renormalizing category weights (Cat 1, 2, 5, 6 survive)</span>
+        <code>15 + 15 + 15 + 25 = 70   ← combined original weight of the surviving categories
+
+Cat 1, 2, 5:  15 ÷ 70 × 100 = 21.43%
+Cat 6:        25 ÷ 70 × 100 = 35.71%</code>
+        <p class="formula-note">Cat 3 and Cat 4's combined 30% is gone from the denominator entirely — it never gets added anywhere, it's simply absent once the remaining weights are redivided.</p>
+      </div>
+
+      <div class="formula-block">
+        <span class="formula-label">What changed for Category 5 &amp; 6's own answers</span>
+        <code>Cat 5 = (100 + 100 + 60 + 30) ÷ 4 = 72.5% of its own weight
+Cat 6 = (30 + 100 + 30 + 60) ÷ 4 = 55% of its own weight</code>
+        <p class="formula-note">No N/A in either category, so their question weights stay at 25% each — only the category weight above changes.</p>
+      </div>
+    </section>
+
+    <section id="reference">
+      <p class="section-num">08</p>
+      <h2>Field reference</h2>
+      <p class="section-sub">For anyone reading the raw weightage array or the stored rating document.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Field</th><th>Lives on</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">cateWgt</code></td>
+              <td>weightageCountArray item</td>
+              <td class="desc">Category's percentage of the whole assessment. Renormalized (level B) when the category has at least one N/A question.</td>
+            </tr>
+            <tr>
+              <td><code class="field">qstnWgt</code></td>
+              <td>weightageCountArray item</td>
+              <td class="desc">Question's percentage <em>within its own category</em>. Renormalized (level A) against only that category's answered questions.</td>
+            </tr>
+            <tr>
+              <td><code class="field">originalQstnWgt</code> / <code class="field">originalCateWgt</code></td>
+              <td>weightageCountArray item (adjusted)</td>
+              <td class="desc">The pre-renormalization value, kept for the scoring log and audit trail.</td>
+            </tr>
+            <tr>
+              <td><code class="field">isNA</code></td>
+              <td>weightageCountArray item (adjusted)</td>
+              <td class="desc">True when the question's answer was empty or "N/A" — excluded from scoring, weight redistributed to its siblings.</td>
+            </tr>
+            <tr>
+              <td><code class="field">answerType</code></td>
+              <td>weightageCountArray item</td>
+              <td class="desc">Which rating-option set to look up the answer's percentage in (e.g. Yes/No, a 3-point scale).</td>
+            </tr>
+            <tr>
+              <td><code class="field">totalScore</code></td>
+              <td>AIRating document (<code class="field">Rating.Score.{user}</code>)</td>
+              <td class="desc">The final rounded percentage — the sum of every answered question's contribution across all categories.</td>
+            </tr>
+            <tr>
+              <td><code class="field">scoreBreakdown</code></td>
+              <td>AIRating document (<code class="field">Rating.Score.{user}</code>)</td>
+              <td class="desc">Per-question array mirroring the calculation table above: original/adjusted weights, answer, answer weight, and the resulting contribution.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · AI Rating Scoring — Total Score Calculation
+    </footer>
+  </main>
+</div>
+
+<script>
+  const optPct = { good: 100, average: 60, poor: 30, na: 0 };
+
+  // Renders one worked example into #{prefix}-body / #{prefix}-total, and
+  // returns the grand total so callers can also drop it into a summary card.
+  function renderExample(prefix, categoryDefs) {
+    const catApplicable = categoryDefs.map((c) => {
+      const applicableWeight = c.answers.filter((a) => a !== 'na').reduce((s) => s + 25, 0);
+      return { ...c, applicableWeight, hasApplicable: applicableWeight > 0 };
+    });
+    const totalApplicableCateWgt = catApplicable.filter((c) => c.hasApplicable).reduce((s, c) => s + c.cateWgt, 0);
+
+    const tbody = document.getElementById(`${prefix}-body`);
+    let grand = 0;
+
+    catApplicable.forEach((cat) => {
+      const adjCateWgt = cat.hasApplicable ? (cat.cateWgt / totalApplicableCateWgt) * 100 : 0;
+      let catScore = 0;
+
+      cat.answers.forEach((answer, i) => {
+        const isNA = answer === 'na';
+        const adjQWgt = isNA || !cat.hasApplicable ? 0 : (25 / cat.applicableWeight) * 100;
+        const ansWgt = optPct[answer];
+        const contribution = isNA ? 0 : (adjQWgt * ansWgt / 100) * (adjCateWgt / 100);
+        catScore += contribution;
+
+        const tr = document.createElement('tr');
+        if (isNA) tr.className = 'na-row';
+        tr.innerHTML = `
+          <td class="cat-tag">${i === 0 ? cat.name : ''}</td>
+          <td class="num">${i === 0 ? cat.cateWgt.toFixed(0) + '%' : ''}</td>
+          <td class="num">${i === 0 ? adjCateWgt.toFixed(2) + '%' : ''}</td>
+          <td>Q${i + 1}</td>
+          <td class="num">${isNA ? '—' : adjQWgt.toFixed(2) + '%'}</td>
+          <td><span class="answer-tag ${answer}">${answer === 'na' ? 'N/A' : answer}</span></td>
+          <td class="num">${isNA ? '—' : ansWgt + '%'}</td>
+          <td class="num">${isNA ? '—' : contribution.toFixed(2) + '%'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      grand += catScore;
+      const subtotal = document.createElement('tr');
+      subtotal.className = 'subtotal';
+      subtotal.innerHTML = `<td colspan="7">${cat.name} subtotal</td><td class="num">${catScore.toFixed(2)}%</td>`;
+      tbody.appendChild(subtotal);
+    });
+
+    document.getElementById(`${prefix}-total`).textContent = grand.toFixed(2) + '%';
+    return grand;
+  }
+
+  // --- Example A: no N/A at all ---
+  const totalA = renderExample('ex-a', [
+    { name: 'Verification', cateWgt: 40, answers: ['good', 'good', 'average', 'poor'] },
+    { name: 'Resolution', cateWgt: 60, answers: ['good', 'average', 'good', 'good'] },
+  ]);
+  document.getElementById('ex-a-summary').textContent = totalA.toFixed(2) + '%';
+
+  // --- Example B: one question inside Verification is N/A ---
+  const totalB = renderExample('ex-b', [
+    { name: 'Verification', cateWgt: 40, answers: ['good', 'good', 'average', 'na'] },
+    { name: 'Resolution', cateWgt: 60, answers: ['good', 'average', 'good', 'good'] },
+  ]);
+  document.getElementById('ex-b-summary').textContent = totalB.toFixed(2) + '%';
+
+  // --- Example C: Verification is entirely N/A ---
+  const totalC = renderExample('ex-c', [
+    { name: 'Verification', cateWgt: 40, answers: ['na', 'na', 'na', 'na'] },
+    { name: 'Resolution', cateWgt: 60, answers: ['good', 'average', 'good', 'good'] },
+  ]);
+  document.getElementById('ex-c-summary').textContent = totalC.toFixed(2) + '%';
+
+  // --- Full worked example: 6 categories, 4 questions each ---
+  renderExample('calc', [
+    { name: 'Category 1', cateWgt: 15, answers: ['good', 'good', 'good', 'good'] },
+    { name: 'Category 2', cateWgt: 15, answers: ['good', 'good', 'good', 'good'] },
+    { name: 'Category 3', cateWgt: 15, answers: ['na', 'na', 'na', 'na'] },
+    { name: 'Category 4', cateWgt: 15, answers: ['na', 'na', 'na', 'na'] },
+    { name: 'Category 5', cateWgt: 15, answers: ['good', 'good', 'average', 'poor'] },
+    { name: 'Category 6', cateWgt: 25, answers: ['poor', 'good', 'poor', 'average'] },
+  ]);
+</script>
+
+</body>
+</html>
