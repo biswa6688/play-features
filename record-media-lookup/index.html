@@ -16,6 +16,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#modes">Two ways to use it</a></li>
       <li><a href="#params">Paging through a list</a></li>
+      <li><a href="#dates">Filtering by date</a></li>
       <li><a href="#single">Example: one recording</a></li>
       <li><a href="#list">Example: a page of recordings</a></li>
       <li><a href="#faq">Good to know</a></li>
@@ -117,8 +118,47 @@
       </div>
     </section>
 
-    <section id="single">
+    <section id="dates">
       <p class="section-num">04</p>
+      <h2>Filtering by date</h2>
+      <p class="section-sub">Two optional settings narrow a "browse" request to a date range. Like the paging params, neither does anything in single-lookup mode.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">fromdate</span>
+            <span class="default">default today</span>
+          </div>
+          <div class="body">
+            <p>Earliest date to include, inclusive. Whatever time of day you send is ignored — the filter always starts at the very beginning of that date.</p>
+            <p class="example">e.g. <code class="field">fromdate=2026-08-01</code> &rarr; recordings from Aug 1st onward.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">todate</span>
+            <span class="default">default today</span>
+          </div>
+          <div class="body">
+            <p>Latest date to include, inclusive. Whatever time of day you send is ignored — the filter always ends at the very end of that date.</p>
+            <p class="example">e.g. <code class="field">fromdate=2026-08-01&amp;todate=2026-08-07</code> &rarr; Aug 1st through Aug 7th, inclusive.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Each side defaults independently</span>
+        <p>Leave out both and you get today's recordings. Send only <code class="field">fromdate</code> and <code class="field">todate</code> defaults to the end of today; send only <code class="field">todate</code> and <code class="field">fromdate</code> defaults to the start of today — the missing side is never inferred from the one you did send.</p>
+      </div>
+
+      <div class="callout warn">
+        <span class="label">Rejected, not silently corrected</span>
+        <p>Unlike <code class="field">limit</code>/<code class="field">offset</code>, a bad date range is rejected rather than corrected for you. That includes: a value that isn't <code class="field">YYYY-MM-DD</code> or ISO 8601, <code class="field">fromdate</code> later than <code class="field">todate</code>, either date later than today, and a span wider than the server's configured maximum (90 days by default).</p>
+      </div>
+    </section>
+
+    <section id="single">
+      <p class="section-num">05</p>
       <h2>Example: getting one recording</h2>
       <p class="section-sub">Send an ID, get back one link.</p>
 
@@ -143,7 +183,7 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
     </section>
 
     <section id="list">
-      <p class="section-num">05</p>
+      <p class="section-num">06</p>
       <h2>Example: browsing a page of recordings</h2>
       <p class="section-sub">Leave out the ID, get back a page.</p>
 
@@ -172,7 +212,7 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
     </section>
 
     <section id="faq">
-      <p class="section-num">06</p>
+      <p class="section-num">07</p>
       <h2>Good to know</h2>
       <p class="section-sub">A few things that come up once you start integrating.</p>
       <div class="faq-list">
@@ -186,13 +226,21 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
         </div>
         <div class="faq-item">
           <p class="q">Can I raise the 30-record page cap?</p>
-          <p class="a">That ceiling is configurable on the server (via <code class="field">RECORD_URL_MAX_LIMIT</code>) — if your integration regularly needs bigger pages, ask whoever manages the deployment rather than assuming a client-side <code class="field">limit</code> can exceed it.</p>
+          <p class="a">That ceiling is configurable on the server — if your integration regularly needs bigger pages, ask whoever manages the deployment rather than assuming a client-side <code class="field">limit</code> can exceed it.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Do fromdate/todate do anything for a single lookup?</p>
+          <p class="a">No — like <code class="field">limit</code> and <code class="field">offset</code>, they're ignored whenever <code class="field">recordId</code> or <code class="field">xsessid</code> is present.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I raise the 90-day max range?</p>
+          <p class="a">That ceiling is configurable on the server, the same way the page-size cap above is — ask whoever manages the deployment if your integration needs a wider range.</p>
         </div>
       </div>
     </section>
 
     <section id="reference">
-      <p class="section-num">07</p>
+      <p class="section-num">08</p>
       <h2>Field reference</h2>
       <p class="section-sub">Every query parameter this endpoint reads.</p>
       <div class="table-wrap">
@@ -225,6 +273,16 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
               <td><code class="field">includecount</code></td>
               <td>List only</td>
               <td class="desc">Set <code class="field">true</code> to add <code class="field">totalCount</code> to the response.</td>
+            </tr>
+            <tr>
+              <td><code class="field">fromdate</code></td>
+              <td>List only</td>
+              <td class="desc">Earliest date, inclusive (<code class="field">YYYY-MM-DD</code> or ISO 8601). Default today. Time of day is ignored.</td>
+            </tr>
+            <tr>
+              <td><code class="field">todate</code></td>
+              <td>List only</td>
+              <td class="desc">Latest date, inclusive. Default today. Must not be before <code class="field">fromdate</code>, after today, or more than the server's configured maximum (90 days by default) after <code class="field">fromdate</code>.</td>
             </tr>
             <tr>
               <td><code class="field">content_format</code></td>

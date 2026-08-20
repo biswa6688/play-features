@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Response Headers Configuration (PlayWeb) — PLAY Infra Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#cors">CORS settings</a></li>
+      <li><a href="#security">Security response headers</a></li>
+      <li><a href="#strip">Removing headers</a></li>
+      <li><a href="#example">Example .env block</a></li>
+      <li><a href="#faq">Good to know</a></li>
+      <li><a href="#reference">Field reference</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4z"/><path d="M4 12h10v8H4z"/><path d="M18 12v8"/><path d="M18 16h3"/></svg>
+        Infrastructure
+      </span>
+      <h1>Response Headers Configuration</h1>
+      <p class="lede">CORS behavior and HTTP response headers on the PlayWeb host — the server serving the <code class="field">/play</code> and <code class="field">/play-widget</code> front-ends — are driven entirely by <code class="field">.env</code> values. No code change or redeploy is needed to change an allowed origin, tighten a security header, or stop leaking a header like <code class="field">X-Powered-By</code>.</p>
+      <div class="meta-row">
+        <span class="path"><b>playweb4.x/host</b><span class="sep">·</span><code class="field">index.js</code></span>
+        <span class="path"><b>Config file</b><span class="sep">·</span><code class="field">playweb4.x/host/.env</code></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this covers</h2>
+      <p class="section-sub">One Express server, one place to configure it.</p>
+      <p>The PlayWeb host — the static server serving the <code class="field">/play</code> and <code class="field">/play-widget</code> single-page apps — reads a small set of <code class="field">APP_*</code> environment variables at startup and uses them to build every response's CORS and security headers, and to decide which headers (if any) should be stripped before the response leaves the process. This logic lives at the top of <code class="field">host/index.js</code>, mirroring the equivalent setup on the PlayService API.</p>
+      <div class="callout warn">
+        <span class="label">Restart required</span>
+        <p><code class="field">.env</code> is loaded once, at process startup. Editing a value on a running server has no effect until the process is restarted.</p>
+      </div>
+    </section>
+
+    <section id="cors">
+      <p class="section-num">02</p>
+      <h2>CORS settings</h2>
+      <p class="section-sub">Controls which origins may load the front-end and what the browser is told is allowed.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_CORS_ORIGIN</span>
+            <span class="default">default *</span>
+          </div>
+          <div class="body">
+            <p>Which origins get <code class="field">Access-Control-Allow-Origin</code> echoed back. Set to <code class="field">*</code> to allow any origin, or a comma-separated allow-list of specific origins to restrict it.</p>
+            <p class="example">e.g. <code class="field">APP_CORS_ORIGIN=https://app.example.com,https://admin.example.com</code></p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_CORS_METHODS</span>
+            <span class="default">e.g. DELETE, POST, GET...</span>
+          </div>
+          <div class="body">
+            <p>Value sent as <code class="field">Access-Control-Allow-Methods</code>. List every HTTP verb a client is allowed to send cross-origin.</p>
+            <p class="example">e.g. <code class="field">APP_CORS_METHODS="DELETE, POST, GET, OPTIONS, PATCH, PUT"</code></p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_CORS_HEADERS</span>
+            <span class="default">e.g. Content-Type, Authorization...</span>
+          </div>
+          <div class="body">
+            <p>Value sent as <code class="field">Access-Control-Allow-Headers</code>. List every request header a client is allowed to send cross-origin.</p>
+            <p class="example">e.g. <code class="field">APP_CORS_HEADERS="Content-Type, Authorization, Origin, Accept, X-Requested-With, x-access-token"</code></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Origin matching is exact</span>
+        <p>When not using <code class="field">*</code>, the incoming request's <code class="field">Origin</code> header must match one of the comma-separated values exactly (protocol and host, no wildcards, no trailing slash) or no <code class="field">Access-Control-Allow-Origin</code> header is sent at all — the browser will then block the response.</p>
+      </div>
+
+      <div class="callout note">
+        <span class="label">A separate cors() middleware also runs</span>
+        <p>This server also calls Express's <code class="field">cors()</code> package with no options, which independently reflects an open <code class="field">Access-Control-Allow-Origin: *</code>. The <code class="field">APP_CORS_ORIGIN</code> allow-list logic below runs afterward in the same request and can layer stricter values on top, but tightening cross-origin access reliably means reviewing both.</p>
+      </div>
+    </section>
+
+    <section id="security">
+      <p class="section-num">03</p>
+      <h2>Security response headers</h2>
+      <p class="section-sub">Optional headers, added only when a value is set.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_CONTENT_TYPE</span>
+            <span class="default">e.g. application/json</span>
+          </div>
+          <div class="body">
+            <p>Sets a default <code class="field">Content-Type</code> response header. Leave unset to let static file serving and each route decide its own content type.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_X_FRAME_OPTIONS</span>
+            <span class="default">e.g. DENY</span>
+          </div>
+          <div class="body">
+            <p>Sets <code class="field">X-Frame-Options</code>, controlling whether the site can be embedded in an <code class="field">&lt;iframe&gt;</code>. Use <code class="field">DENY</code> to block framing entirely, or <code class="field">SAMEORIGIN</code> to allow it only from the same origin.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_CONTENT_SECURITY_POLICY</span>
+            <span class="default">e.g. frame-ancestors 'none'</span>
+          </div>
+          <div class="body">
+            <p>Sets the <code class="field">Content-Security-Policy</code> header.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="label">Unlike PlayService, nothing is hard-set here</span>
+        <p>The PlayWeb host does not unconditionally force frame-protection headers in code the way the PlayService API does. Here, <code class="field">APP_X_FRAME_OPTIONS</code> and <code class="field">APP_CONTENT_SECURITY_POLICY</code> are the only source of those headers — leaving them blank means the header is not sent at all.</p>
+      </div>
+    </section>
+
+    <section id="strip">
+      <p class="section-num">04</p>
+      <h2>Removing headers</h2>
+      <p class="section-sub">Stop the server from leaking headers that fingerprint the underlying stack.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">APP_REMOVE_HEADERS</span>
+            <span class="default">default X-Powered-By</span>
+          </div>
+          <div class="body">
+            <p>Comma-separated list of response header names to remove from every response. <code class="field">X-Powered-By</code> is handled specially — it's disabled at the Express app level via <code class="field">app.disable('x-powered-by')</code> so it's never set in the first place, rather than being stripped after the fact. Any other header named here is removed per-response with <code class="field">res.removeHeader()</code>.</p>
+            <p class="example">e.g. <code class="field">APP_REMOVE_HEADERS="X-Powered-By, Server"</code></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <span class="label">Matching is case-insensitive, list-driven</span>
+        <p>Only headers explicitly named in <code class="field">APP_REMOVE_HEADERS</code> are affected. An empty or missing value means no header is stripped — including <code class="field">X-Powered-By</code>, which will then be sent with the default Express value.</p>
+      </div>
+    </section>
+
+    <section id="example">
+      <p class="section-num">05</p>
+      <h2>Example .env block</h2>
+      <p class="section-sub">The current default configuration.</p>
+
+      <h3>PlayWeb Host <span class="pill-tag">playweb4.x/host/.env</span></h3>
+      <div class="console">
+        <div class="console-label">.env</div>
+        <pre><code><span class="m"># Express server and CORS Configurations</span>
+<span class="k">APP_CORS_ORIGIN</span>=<span class="s">*</span>
+<span class="k">APP_CORS_METHODS</span>=<span class="s">"DELETE, POST, GET, OPTIONS, PATCH, PUT"</span>
+<span class="k">APP_CORS_HEADERS</span>=<span class="s">"Content-Type, Authorization, Origin, Accept, X-Requested-With, x-access-token"</span>
+<span class="k">APP_CONTENT_TYPE</span>=<span class="s">"application/json"</span>
+<span class="k">APP_CONTENT_SECURITY_POLICY</span>=<span class="s">"frame-ancestors 'none'"</span>
+<span class="k">APP_X_FRAME_OPTIONS</span>=<span class="s">"DENY"</span>
+<span class="m"># Comma-separated list of response headers to strip</span>
+<span class="k">APP_REMOVE_HEADERS</span>=<span class="s">"X-Powered-By"</span></code></pre>
+      </div>
+      <p class="example-note">This <code class="field">.env</code> file, and the <code class="field">dotenv</code> load at the top of <code class="field">host/index.js</code>, are both new — the PlayWeb host previously had no environment-driven configuration at all.</p>
+    </section>
+
+    <section id="faq">
+      <p class="section-num">06</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">A few things that come up when tuning these values.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <p class="q">I changed a value in .env but nothing changed. Why?</p>
+          <p class="a">The server process must be restarted. These values are read once at startup, not watched or hot-reloaded.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I allow more than one origin?</p>
+          <p class="a">Yes — set <code class="field">APP_CORS_ORIGIN</code> to a comma-separated list of exact origins instead of <code class="field">*</code>. Each request's <code class="field">Origin</code> header is checked against that list. Remember the separate <code class="field">cors()</code> middleware also runs — see the callout above.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What happens if I leave APP_REMOVE_HEADERS blank?</p>
+          <p class="a">No headers are stripped, and <code class="field">X-Powered-By: Express</code> is sent as normal. Set it explicitly (at minimum <code class="field">X-Powered-By</code>) to stop advertising the framework in every response.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Does removing a header ever break a client?</p>
+          <p class="a">Not for anything in the default list — <code class="field">X-Powered-By</code> is purely informational fingerprinting and no client logic depends on it. Be more careful before adding CORS or content headers to this list, since those can be functionally required by browsers or downstream consumers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="reference">
+      <p class="section-num">07</p>
+      <h2>Field reference</h2>
+      <p class="section-sub">Every environment variable this configuration reads.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">APP_CORS_ORIGIN</code></td>
+              <td><code class="field">*</code></td>
+              <td class="desc"><code class="field">*</code> for any origin, or a comma-separated allow-list of exact origins.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_CORS_METHODS</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Value sent as <code class="field">Access-Control-Allow-Methods</code>.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_CORS_HEADERS</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Value sent as <code class="field">Access-Control-Allow-Headers</code>.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_CONTENT_TYPE</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Default <code class="field">Content-Type</code> response header, if set.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_X_FRAME_OPTIONS</code></td>
+              <td>&mdash;</td>
+              <td class="desc"><code class="field">X-Frame-Options</code> value, e.g. <code class="field">DENY</code> or <code class="field">SAMEORIGIN</code>. Only source of this header on this server — see callout above.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_CONTENT_SECURITY_POLICY</code></td>
+              <td>&mdash;</td>
+              <td class="desc"><code class="field">Content-Security-Policy</code> value, e.g. <code class="field">frame-ancestors 'none'</code>.</td>
+            </tr>
+            <tr>
+              <td><code class="field">APP_REMOVE_HEADERS</code></td>
+              <td><code class="field">X-Powered-By</code></td>
+              <td class="desc">Comma-separated header names to strip from every response. <code class="field">X-Powered-By</code> is disabled at the Express level; anything else is removed per-response.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Infrastructure — Response Headers Configuration (PlayWeb)
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
