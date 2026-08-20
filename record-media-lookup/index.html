@@ -16,7 +16,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#modes">Two ways to use it</a></li>
       <li><a href="#params">Paging through a list</a></li>
-      <li><a href="#dates">Filtering by date</a></li>
+      <li><a href="#dates">Filtering by date &amp; ordering</a></li>
       <li><a href="#single">Example: one recording</a></li>
       <li><a href="#list">Example: a page of recordings</a></li>
       <li><a href="#faq">Good to know</a></li>
@@ -34,7 +34,7 @@
       <p class="lede">One endpoint gets you the playable link for a single call or chat recording, or a browsable page of recordings for a whole process and channel — which one you get back depends only on whether you tell it which recording you want.</p>
       <div class="meta-row">
         <span class="method-badge"><span class="verb">GET</span><span class="route">/play-api/record-media/:campaign/:channel</span></span>
-        <span class="path"><b>4.16.1.2.2_hotfix</b><span class="sep">·</span>Released 2026-08-19</span>
+        <span class="path"><b>4.16.1.2.2_hotfix</b><span class="sep">·</span>Released 2026-08-20</span>
       </div>
     </header>
 
@@ -120,40 +120,57 @@
 
     <section id="dates">
       <p class="section-num">04</p>
-      <h2>Filtering by date</h2>
-      <p class="section-sub">Two optional settings narrow a "browse" request to a date range. Like the paging params, neither does anything in single-lookup mode.</p>
+      <h2>Filtering by date &amp; ordering</h2>
+      <p class="section-sub">Two optional settings narrow a "browse" request to a date range, and a third controls the order results come back in. Like the paging params, none of them does anything in single-lookup mode.</p>
 
       <div class="param-cards">
         <div class="param-card">
           <div class="head">
             <span class="name">fromdate</span>
-            <span class="default">default today</span>
+            <span class="default">default none</span>
           </div>
           <div class="body">
-            <p>Earliest date to include, inclusive. Whatever time of day you send is ignored — the filter always starts at the very beginning of that date.</p>
+            <p>Earliest date to include, inclusive. Whatever time of day you send is ignored — the filter always starts at the very beginning of that date. Leave it out entirely and there's no lower bound.</p>
             <p class="example">e.g. <code class="field">fromdate=2026-08-01</code> &rarr; recordings from Aug 1st onward.</p>
           </div>
         </div>
         <div class="param-card">
           <div class="head">
             <span class="name">todate</span>
-            <span class="default">default today</span>
+            <span class="default">default none</span>
           </div>
           <div class="body">
-            <p>Latest date to include, inclusive. Whatever time of day you send is ignored — the filter always ends at the very end of that date.</p>
+            <p>Latest date to include, inclusive. Whatever time of day you send is ignored — the filter always ends at the very end of that date. Leave it out entirely and there's no upper bound.</p>
             <p class="example">e.g. <code class="field">fromdate=2026-08-01&amp;todate=2026-08-07</code> &rarr; Aug 1st through Aug 7th, inclusive.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">orderby</span>
+            <span class="default">default varies</span>
+          </div>
+          <div class="body">
+            <p>Sort direction for the page you get back: <code class="field">asc</code> or <code class="field">desc</code> (case-insensitive), by recording start time. Sending anything else is rejected. It only changes ordering, never which recordings match — combine it with <code class="field">limit</code>/<code class="field">offset</code> to page through a large result set in either direction.</p>
+            <p class="example">e.g. <code class="field">orderby=asc</code> &rarr; oldest matching recording first.</p>
           </div>
         </div>
       </div>
 
       <div class="callout note">
-        <span class="label">Each side defaults independently</span>
-        <p>Leave out both and you get today's recordings. Send only <code class="field">fromdate</code> and <code class="field">todate</code> defaults to the end of today; send only <code class="field">todate</code> and <code class="field">fromdate</code> defaults to the start of today — the missing side is never inferred from the one you did send.</p>
+        <span class="label">Neither date is defaulted anymore</span>
+        <p>Unlike <code class="field">limit</code>/<code class="field">offset</code>, missing <code class="field">fromdate</code>/<code class="field">todate</code> are never filled in with today's date — they're simply left out of the filter. What you get back depends on which side you send:</p>
+        <ul class="plain">
+          <li><b>Neither sent</b> &mdash; no date filter at all; you get the most recent recordings, newest first, capped at <code class="field">limit</code>.</li>
+          <li><b>Only <code class="field">fromdate</code></b> &mdash; everything from that date onward, no upper bound; returned oldest-first from <code class="field">fromdate</code>, capped at <code class="field">limit</code>.</li>
+          <li><b>Only <code class="field">todate</code></b> &mdash; everything up to that date, no lower bound; returned newest-first up to <code class="field">todate</code>, capped at <code class="field">limit</code>.</li>
+          <li><b>Both sent</b> &mdash; a fixed range, validated as below. This is the only combination checked against the server's max-range setting.</li>
+        </ul>
+        <p>Add <code class="field">orderby</code> to any of the four combinations above to force that specific sort direction instead of the default just described.</p>
       </div>
 
       <div class="callout warn">
         <span class="label">Rejected, not silently corrected</span>
-        <p>Unlike <code class="field">limit</code>/<code class="field">offset</code>, a bad date range is rejected rather than corrected for you. That includes: a value that isn't <code class="field">YYYY-MM-DD</code> or ISO 8601, <code class="field">fromdate</code> later than <code class="field">todate</code>, either date later than today, and a span wider than the server's configured maximum (90 days by default).</p>
+        <p>Unlike <code class="field">limit</code>/<code class="field">offset</code>, a bad date or order value is rejected rather than corrected for you. That includes: a date that isn't <code class="field">YYYY-MM-DD</code> or ISO 8601, either date later than today, an <code class="field">orderby</code> that isn't <code class="field">asc</code>/<code class="field">desc</code>, and — only when both <code class="field">fromdate</code> and <code class="field">todate</code> are sent — <code class="field">fromdate</code> later than <code class="field">todate</code>, or a span wider than the server's configured maximum (90 days by default).</p>
       </div>
     </section>
 
@@ -229,12 +246,16 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
           <p class="a">That ceiling is configurable on the server — if your integration regularly needs bigger pages, ask whoever manages the deployment rather than assuming a client-side <code class="field">limit</code> can exceed it.</p>
         </div>
         <div class="faq-item">
-          <p class="q">Do fromdate/todate do anything for a single lookup?</p>
+          <p class="q">Do fromdate/todate/orderby do anything for a single lookup?</p>
           <p class="a">No — like <code class="field">limit</code> and <code class="field">offset</code>, they're ignored whenever <code class="field">recordId</code> or <code class="field">xsessid</code> is present.</p>
         </div>
         <div class="faq-item">
           <p class="q">Can I raise the 90-day max range?</p>
-          <p class="a">That ceiling is configurable on the server, the same way the page-size cap above is — ask whoever manages the deployment if your integration needs a wider range.</p>
+          <p class="a">That ceiling is configurable on the server, the same way the page-size cap above is — ask whoever manages the deployment if your integration needs a wider range. It's only enforced when both <code class="field">fromdate</code> and <code class="field">todate</code> are sent; an open-ended query (one side or neither sent) has no range cap, just the usual <code class="field">limit</code> on page size.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What order do I get results in if I don't pass orderby?</p>
+          <p class="a">It depends on the date params: no dates or <code class="field">todate</code>-only returns newest first; <code class="field">fromdate</code>-only returns oldest first; sending both <code class="field">fromdate</code> and <code class="field">todate</code> returns them in no particular guaranteed order. Pass <code class="field">orderby</code> explicitly if your integration depends on the order.</p>
         </div>
       </div>
     </section>
@@ -277,12 +298,17 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
             <tr>
               <td><code class="field">fromdate</code></td>
               <td>List only</td>
-              <td class="desc">Earliest date, inclusive (<code class="field">YYYY-MM-DD</code> or ISO 8601). Default today. Time of day is ignored.</td>
+              <td class="desc">Earliest date, inclusive (<code class="field">YYYY-MM-DD</code> or ISO 8601). No default — omit for no lower bound. Time of day is ignored. Must not be after today.</td>
             </tr>
             <tr>
               <td><code class="field">todate</code></td>
               <td>List only</td>
-              <td class="desc">Latest date, inclusive. Default today. Must not be before <code class="field">fromdate</code>, after today, or more than the server's configured maximum (90 days by default) after <code class="field">fromdate</code>.</td>
+              <td class="desc">Latest date, inclusive. No default — omit for no upper bound. Must not be after today; when <code class="field">fromdate</code> is also sent, must not be before it or more than the server's configured maximum (90 days by default) after it.</td>
+            </tr>
+            <tr>
+              <td><code class="field">orderby</code></td>
+              <td>List only</td>
+              <td class="desc"><code class="field">asc</code> or <code class="field">desc</code>, sorted by recording start time. Overrides the date-based default sort order.</td>
             </tr>
             <tr>
               <td><code class="field">content_format</code></td>
@@ -300,7 +326,7 @@ x-access-token: <span class="redacted">&lt;your token&gt;</span></code></pre>
     </section>
 
     <footer class="doc-foot">
-      PLAY · Recordings — Record Media Lookup · version 4.16.1.2.2_hotfix · released 2026-08-19
+      PLAY · Recordings — Record Media Lookup · version 4.16.1.2.2_hotfix · released 2026-08-20
     </footer>
   </main>
 </div>
