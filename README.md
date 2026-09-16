@@ -12,5 +12,7 @@ Standalone HTML documentation for individual PLAY features. Each feature gets it
 | Rating Score Calculation | [`rating-score-calculation/`](rating-score-calculation/index.html) | How an AI rating's `totalScore` is calculated — category/question/answer weightage, and how N/A answers are renormalized within a category and across categories. |
 | Response Headers Configuration (PlayService) | [`response-headers-config-playservice/`](response-headers-config-playservice/index.html) | `.env`-driven CORS and security response headers, and stripping headers like `X-Powered-By`, on the PlayService API server. |
 | Response Headers Configuration (PlayWeb) | [`response-headers-config-playweb/`](response-headers-config-playweb/index.html) | `.env`-driven CORS and security response headers, and stripping headers like `X-Powered-By`, on the PlayWeb host server. |
+| Environment / .env Configuration Migration (PlayService) | [`env-config-migration/`](env-config-migration/index.html) | PlayService's `PLAY_SYS_*` env var rename, Nucleus-first config resolution, removed local-DB-config mode, and the new graceful shutdown timeout. |
+| PlayWeb Host Runtime Configuration | [`playweb-runtime-config/`](playweb-runtime-config/index.html) | PlayWeb's backend addresses, app code, credentials, and encryption key now served dynamically from `host/.env` at page load, plus the new dev/production runtime switch. |
 
 When adding a new feature folder here, add a row to this table.

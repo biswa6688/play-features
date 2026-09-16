@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlayWeb Runtime Configuration — PLAY Infra Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#dynamic">Configuration is now served on demand</a></li>
+      <li><a href="#devprod">A working development/production switch</a></li>
+      <li><a href="#nucleus">Nucleus keeps its own address</a></li>
+      <li><a href="#secrets">Secrets are no longer fixed in place</a></li>
+      <li><a href="#safety">Safer handling of configuration values</a></li>
+      <li><a href="#tenant">Organization-level settings</a></li>
+      <li><a href="#faq">Good to know</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4z"/><path d="M4 12h10v8H4z"/><path d="M18 12v8"/><path d="M18 16h3"/></svg>
+        Infrastructure
+      </span>
+      <h1>PlayWeb Runtime Configuration</h1>
+      <p class="lede">The settings that tell PLAY where its backend services live — along with sign-in details, an encryption key, and per-organization preferences — are now handed to the application automatically each time it loads, instead of being permanently fixed in place ahead of time. A deployment can now be repointed or adjusted with a configuration change alone.</p>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What changed</h2>
+      <p class="section-sub">From "fixed in place" to "supplied on load."</p>
+      <p>Previously, the addresses of the services PLAY depends on, along with its identifying code and a couple of secrets, were permanently fixed at the time the application was prepared. Changing any of them meant updating every deployed copy individually, or preparing the application all over again. Those same settings are now supplied automatically the moment the application loads, from a single, central configuration.</p>
+      <div class="callout note">
+        <span class="label">One place to change it</span>
+        <p>An administrator managing a deployment now only ever needs to touch that central configuration — never the application itself — to update any of these values.</p>
+      </div>
+    </section>
+
+    <section id="dynamic">
+      <p class="section-num">02</p>
+      <h2>Configuration is now served on demand</h2>
+      <p class="section-sub">The application asks for its settings every time it loads.</p>
+      <p>Right before PLAY shows anything on screen, it asks for its current configuration. That configuration is assembled from local settings and, where a value isn't set locally, from each organization's own central configuration. If a value is missing everywhere, the application is told so plainly rather than being left to guess at a value that might be wrong.</p>
+      <div class="callout warn">
+        <span class="label">A restart is still needed after a change</span>
+        <p>The underlying service only reads its configuration once, when it starts. Refreshing the page alone isn't enough — the service has to be restarted first so it picks up the new values.</p>
+      </div>
+    </section>
+
+    <section id="devprod">
+      <p class="section-num">03</p>
+      <h2>A working development/production switch</h2>
+      <p class="section-sub">A setting that now actually takes effect, replacing one that quietly never did.</p>
+      <p>PLAY has always needed to behave slightly differently depending on whether it's running on a developer's own machine or in a real deployment — for example, whether it should trust a configured address exactly as written, or work out the right address on its own. That decision used to rely on a setting that was permanently locked in place ahead of time and could never actually change afterward, no matter what a deployment's configuration said — so in practice it stopped reflecting reality soon after.</p>
+      <p>That decision is now driven by a single, plain switch that's read fresh every time the page loads. Flipping it from one value to the other takes effect on the very next page refresh.</p>
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Development mode</span>
+            <span class="default">for a developer's own machine</span>
+          </div>
+          <div class="body">
+            <p>Configured addresses are trusted exactly as written, even if they point somewhere entirely different from where the application itself is running.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Production mode</span>
+            <span class="default">the safe default for real deployments</span>
+          </div>
+          <div class="body">
+            <p>Only the meaningful part of a configured address is kept; the rest is always completed automatically. A leftover address from someone's local setup can no longer accidentally leak into a live deployment.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="nucleus">
+      <p class="section-num">04</p>
+      <h2>Nucleus keeps its own address</h2>
+      <p class="section-sub">The one service that's allowed to live somewhere else entirely.</p>
+      <p>Every other service PLAY talks to is assumed to sit alongside PLAY itself. Nucleus is the one exception — it commonly runs on a completely separate machine — so its address is always trusted exactly as configured, in every environment, rather than ever being worked out automatically.</p>
+    </section>
+
+    <section id="secrets">
+      <p class="section-num">05</p>
+      <h2>Secrets are no longer fixed in place</h2>
+      <p class="section-sub">Two values that used to be locked in ahead of time are now supplied on load instead.</p>
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Encryption key</span>
+            <span class="default">protects data saved in the browser</span>
+          </div>
+          <div class="body">
+            <p>The key PLAY uses to encrypt information it stores locally is now supplied automatically at load time, sourced from central configuration, instead of being permanently fixed in place ahead of time.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">AI assistant display name</span>
+            <span class="default">shown in the AI chat panel</span>
+          </div>
+          <div class="body">
+            <p>The name shown for the AI assistant is now taken from each organization's own preferences, so different organizations can each see their own preferred name, instead of every deployment being stuck with one fixed name.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="safety">
+      <p class="section-num">06</p>
+      <h2>Safer handling of configuration values</h2>
+      <p class="section-sub">The values that can carry real credentials are treated with more care.</p>
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Kept out of shared storage</span>
+            <span class="default">stays local to each deployment</span>
+          </div>
+          <div class="body">
+            <p>Configuration that can carry real credentials is no longer stored anywhere shared. A sanitized example with placeholder values is provided instead, so anyone setting up a new deployment starts from a safe template rather than a copy carrying someone else's real secrets.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Checked at startup</span>
+            <span class="default">missing values are reported, not guessed</span>
+          </div>
+          <div class="body">
+            <p>When the underlying service starts, it checks that every setting PLAY truly needs is available from somewhere. Anything still missing is reported clearly at startup, instead of silently showing up as a broken behavior later on.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Kept out of prepared copies</span>
+            <span class="default">only the safe template is ever included</span>
+          </div>
+          <div class="body">
+            <p>Preparing a new, distributable copy of PLAY now only ever includes the sanitized placeholder template, never real credentials. A real configuration still has to be put in place for each deployment separately.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tenant">
+      <p class="section-num">07</p>
+      <h2>Organization-level settings</h2>
+      <p class="section-sub">Preferences and connection details each organization can set for itself.</p>
+      <p>In addition to the deployment-wide settings above, PLAY supports a broader set of settings that each organization using it can configure independently. These control everything from how that organization's data is stored, to which optional features and display options are turned on for its users.</p>
+
+      <h3>Data storage</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_DB_NAME</code></td><td class="desc">The name identifying this organization's own data store.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_DOMAIN</code></td><td class="desc">The address of the server hosting this organization's data.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_PORT</code></td><td class="desc">The network port used to reach that data server.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_USER</code></td><td class="desc">The username used to sign in to this organization's data store.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_SECRET</code></td><td class="desc">The password used to sign in to this organization's data store.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_AUTH_SOURCE</code></td><td class="desc">Where the sign-in credentials above are actually verified against.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_MIN_POOL_SIZE</code></td><td class="desc">The smallest number of ready connections kept open to the data store at all times.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_MAX_POOL_SIZE</code></td><td class="desc">The most connections allowed to the data store at the same time.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_QUEUE_TIMEOUT_MS</code></td><td class="desc">How long a request will wait in line for a connection before giving up.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_SERVER_TIMEOUT_MS</code></td><td class="desc">How long to wait for the data server to respond before giving up.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_SOCKET_TIMEOUT_MS</code></td><td class="desc">How long an open connection can go quiet before it's considered lost.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_MAX_IDLE_TIMEOUT_MS</code></td><td class="desc">How long an unused connection can sit idle before it's closed.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_USE_NEW_URL_PARSER</code></td><td class="desc">Uses the current, recommended way of reading the data store's address.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_USE_UNIFIED_TOPOLOGY</code></td><td class="desc">Uses the current, recommended way of keeping track of the data store's connections.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_ENABLED</code></td><td class="desc">Encrypts the connection to this organization's data store.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_CA_FILE</code></td><td class="desc">The certificate used to confirm the data store's identity when the connection is encrypted.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_CERTIFICATE_KEY_FILE</code></td><td class="desc">This organization's own certificate, presented when connecting securely to the data store.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_CERTIFICATE_KEY_PASSWORD</code></td><td class="desc">The password protecting that certificate, if one is set.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_ALLOW_INVALID_CERTIFICATE</code></td><td class="desc">Allows the connection even if the data store's certificate can't be verified.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DB_TLS_ALLOW_INVALID_HOST_NAMES</code></td><td class="desc">Allows the connection even if the certificate doesn't match the server's address.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Ratings and analysis</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_CUSTOMER_TAB_ON_AI_RATING</code></td><td class="desc">Shows the customer information tab on conversations rated by AI.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_CUSTOMER_TAB_ON_MANUAL_RATING</code></td><td class="desc">Shows the customer information tab on conversations rated manually.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_CONFIDENCE_SCORE_LABEL_ON_AI_RATING</code></td><td class="desc">Shows a confidence score alongside AI-generated ratings.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_EVIDENT_SCORE_LABEL_ON_AI_RATING</code></td><td class="desc">Shows a supporting-evidence score alongside AI-generated ratings.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_DYNAMIC_INSIGHT_TAB</code></td><td class="desc">Shows the Dynamic Insight tab for a conversation.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_SHOW_TIMEZONE_IN_GROUP</code></td><td class="desc">Displays each record's timezone alongside grouped listings.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_SPEECH_RATIO_DETECTION</code></td><td class="desc">Turns on detection of how much each participant spoke during a conversation.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_MIN_SPEECH_RATIO</code></td><td class="desc">The minimum share of a conversation a participant must speak before speech ratio is flagged.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Speech-to-text and sentiment setup</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_DISABLE_STT_CONFIGURATION_AFTER_TEST_SUCCESS</code></td><td class="desc">Locks speech-to-text setup from further changes once a test of it succeeds.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DISABLE_STT_CONFIGURATION_FOR_CHANNELS</code></td><td class="desc">The specific communication channels where speech-to-text setup is locked from changes.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DISABLE_SA_CONFIGURATION_AFTER_TEST_SUCCESS</code></td><td class="desc">Locks sentiment analysis setup from further changes once a test of it succeeds.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DISABLE_SA_CONFIGURATION_FOR_CHANNELS</code></td><td class="desc">The specific communication channels where sentiment analysis setup is locked from changes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Speech recognition and language</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_ENABLE_ASR_NLP</code></td><td class="desc">Turns on automatic speech recognition and language understanding for this organization.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_DEFAULT_LANGUAGE_CODE</code></td><td class="desc">The language assumed for speech recognition unless another is detected.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_ALTERNATIVE_LANGUAGE_CODES</code></td><td class="desc">Additional languages speech recognition should also be able to recognize.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_AI_CONNECT_TRANSLATE_BEFORE_SENTIMENT_ANALYSIS</code></td><td class="desc">Translates text before running sentiment analysis on it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Transcript and record listing</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_TRANSCRIPT_SYNC_WITH_AUDIO_PLAYER</code></td><td class="desc">Keeps the transcript scrolled in step with audio playback.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_TRANSCRIPT_ALIGN_LIKE_CHAT</code></td><td class="desc">Displays the transcript laid out like a chat conversation.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_RECORD_FETCH_MAX_LIMIT</code></td><td class="desc">The most records that can be requested in a single listing.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_RECORD_FETCH_DEFAULT_LIMIT</code></td><td class="desc">The number of records shown in a listing when none is specified.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_RECORD_FETCH_REQUEST_TIMEOUT</code></td><td class="desc">How long a record listing request waits before giving up.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_MEDIA_RECORD_FETCH_MAX_DATE_RANGE_DAYS</code></td><td class="desc">The widest date range allowed when searching for recordings.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Connected services and assistant</h3>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="field">PLAY_TNT_GRAVITY_SERVICE_USER_NAME</code></td><td class="desc">The username this organization uses to authenticate with the Gravity service.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_GRAVITY_SERVICE_USER_SECRET</code></td><td class="desc">The password this organization uses to authenticate with the Gravity service.</td></tr>
+            <tr><td><code class="field">PLAY_TNT_AI_ASSISTANT_NAME</code></td><td class="desc"><b>New.</b> The display name shown for the AI assistant, chosen individually by each organization.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="faq">
+      <p class="section-num">08</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">A few things that come up when working with this configuration.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <p class="q">I changed a setting but the application still shows the old one. Why?</p>
+          <p class="a">The underlying service only reads configuration once, at startup — it needs to be restarted, then the page refreshed. A refresh alone isn't enough if the service itself hasn't picked up the change yet.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Why does Nucleus behave differently from the other services?</p>
+          <p class="a">Nucleus commonly runs on a separate machine from everything else, so its address is always trusted exactly as configured. The other services are assumed to sit alongside PLAY itself, and their addresses are worked out accordingly.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What happens if a required setting is missing everywhere?</p>
+          <p class="a">It's reported clearly at startup, and PLAY is told the value is empty rather than being handed a guess — reported once, at the source, instead of surfacing later as a confusing broken behavior.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can each organization set its own AI assistant name and other preferences?</p>
+          <p class="a">Yes — the organization-level settings above are configured independently per organization, so different organizations sharing the same deployment can each have their own values.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Infrastructure — PlayWeb Runtime Configuration
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

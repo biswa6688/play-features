@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environment Configuration Guide — PLAY Infra Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#whatschanged">What's changed</a></li>
+      <li><a href="#resolution">How a setting is applied</a></li>
+      <li><a href="#server">Application &amp; runtime</a></li>
+      <li><a href="#ssl">SSL / TLS</a></li>
+      <li><a href="#nucleus">Nucleus connection</a></li>
+      <li><a href="#cors">CORS &amp; security headers</a></li>
+      <li><a href="#encryption">Encryption</a></li>
+      <li><a href="#integrations">Integration endpoints</a></li>
+      <li><a href="#speech">Speech &amp; language</a></li>
+      <li><a href="#recordfetch">Record fetch limits</a></li>
+      <li><a href="#logging">Logging</a></li>
+      <li><a href="#database">Database</a></li>
+      <li><a href="#faq">Good to know</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4z"/><path d="M4 12h10v8H4z"/><path d="M18 12v8"/><path d="M18 16h3"/></svg>
+        Infrastructure
+      </span>
+      <h1>Environment Configuration Guide</h1>
+      <p class="lede">Every setting PlayService reads is now named under one consistent <code class="field">PLAY_SYS_*</code> prefix, and most of them are managed centrally through Nucleus rather than a local file. This page describes what changed and documents every <code class="field">PLAY_SYS_*</code> setting available.</p>
+      <div class="meta-row">
+        <span class="path"><b>Applies to</b><span class="sep">·</span>PlayService</span>
+        <span class="path"><b>Config file</b><span class="sep">·</span><code class="field">.env</code></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>Overview</h2>
+      <p class="section-sub">One naming scheme, one consistent way to configure the service.</p>
+      <p>Every setting is now named consistently with a <code class="field">PLAY_SYS_</code> prefix — grouped by area (server, security, logging, integrations, and so on) so related settings are easy to find and recognize at a glance.</p>
+      <p>Most settings are managed centrally through the Nucleus platform, so an administrator can change most behavior without editing a local file or restarting anything by hand on every machine. A smaller set of settings — ones that are inherently local to a given machine, such as certificate file paths, or ones needed before central configuration is even reachable — remain in the local <code class="field">.env</code> file.</p>
+    </section>
+
+    <section id="whatschanged">
+      <p class="section-num">02</p>
+      <h2>What's changed</h2>
+      <p class="section-sub">A summary of the updates in this release.</p>
+
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Unified naming</span>
+          </div>
+          <div class="body">
+            <p>All settings now use one consistent <code class="field">PLAY_SYS_*</code> naming scheme, replacing a mix of older, inconsistent names.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Centralized configuration</span>
+          </div>
+          <div class="body">
+            <p>Most settings — including database connection details — are now managed centrally through Nucleus instead of a local option. There is no longer a way to run the service purely from local database settings; the central configuration platform is now the single source for that.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">Flexible SSL/TLS</span>
+          </div>
+          <div class="body">
+            <p>HTTPS can now be turned on or off through a setting, with the certificate and key file locations fully configurable, rather than a fixed, always-on HTTPS listener pointed at a fixed file location.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">New: graceful shutdown timeout</span>
+          </div>
+          <div class="body">
+            <p>A new setting controls how long the service waits for in-progress requests and connections to finish before shutting down, so restarts and deployments are smoother and safer.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resolution">
+      <p class="section-num">03</p>
+      <h2>How a setting is applied</h2>
+      <p class="section-sub">Most settings can come from either place — here's the order they're checked in.</p>
+      <p>For settings that support central configuration, the effective value is decided in this order:</p>
+      <div class="param-cards">
+        <div class="param-card">
+          <div class="head">
+            <span class="name">1 · Local .env value</span>
+          </div>
+          <div class="body">
+            <p>If the setting is explicitly given a value in the local <code class="field">.env</code> file, that value is always used first.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">2 · Nucleus (central) value</span>
+          </div>
+          <div class="body">
+            <p>Otherwise, the value configured centrally in Nucleus for this application is used.</p>
+          </div>
+        </div>
+        <div class="param-card">
+          <div class="head">
+            <span class="name">3 · Built-in default</span>
+          </div>
+          <div class="body">
+            <p>If neither source provides a value, a sensible built-in default is used — where one exists. A few settings have no default at all and are required; the service will not start until they're provided from one of the two sources above.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout note">
+        <span class="label">Some settings are local-only</span>
+        <p>A handful of settings — file paths on the local machine, and the credentials needed to reach Nucleus in the first place — can only be set locally in <code class="field">.env</code>. These are marked <b>Local only</b> in the tables below.</p>
+      </div>
+      <div class="callout warn">
+        <span class="label">Restart required for local changes</span>
+        <p>The local <code class="field">.env</code> file is only read when the service starts. Editing a value there has no effect until the service is restarted. Centrally-managed values, where supported, can be updated without a restart.</p>
+      </div>
+    </section>
+
+    <section id="server">
+      <p class="section-num">04</p>
+      <h2>Application &amp; runtime</h2>
+      <p class="section-sub">Core identity, mode, and lifecycle settings.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_APP_CODE</code></td>
+              <td>Local / Central</td>
+              <td>&mdash;</td>
+              <td class="desc">Identifies this application/tenant instance. Also used to name log files.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_IS_STANDALONE</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Switches between single-tenant ("standalone") and multi-tenant operation at startup.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_ENABLE_UTC_TIMEZONE</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">When enabled, the service runs in UTC time — affecting log timestamps and date handling — instead of the local server timezone.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_PORT</code></td>
+              <td>Central, required</td>
+              <td>&mdash; (required)</td>
+              <td class="desc">The network port the service listens on. Must be provided centrally or locally — there is no built-in default.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SHUTDOWN_TIMEOUT_MS</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">10000</code> (10 seconds)</td>
+              <td class="desc"><b>New.</b> How long, in milliseconds, the service waits for in-progress requests and open database connections to finish cleanly when it's asked to stop, before shutting down anyway. Raise this if requests are being cut off during restarts; lower it if restarts feel slow.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="ssl">
+      <p class="section-num">05</p>
+      <h2>SSL / TLS</h2>
+      <p class="section-sub">Controls whether the service serves traffic over HTTPS.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_ENABLE_SSL</code></td>
+              <td>Local only</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">When <code class="field">true</code>, the service serves HTTPS on its listening port using the certificate/key below. When <code class="field">false</code>, it serves plain HTTP. Only one mode is active at a time — there is no separate HTTP and HTTPS port.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SSL_CERTIFICATE_FILE_PATH</code></td>
+              <td>Local only</td>
+              <td>&mdash;</td>
+              <td class="desc">Path to the SSL certificate file on the machine running the service. Required when SSL is enabled.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SSL_KEY_FILE_PATH</code></td>
+              <td>Local only</td>
+              <td>&mdash;</td>
+              <td class="desc">Path to the SSL private key file on the machine running the service. Required when SSL is enabled.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_TLS_REJECT_UNAUTHORIZED</code></td>
+              <td>Local only</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Controls whether the service validates TLS certificates on outgoing connections it makes to other systems. Disabling this allows connecting to systems with self-signed or otherwise untrusted certificates.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="nucleus">
+      <p class="section-num">06</p>
+      <h2>Nucleus connection</h2>
+      <p class="section-sub">How the service reaches the central Nucleus platform.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_NUCLEUS_BASE_URL</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">The address of the Nucleus platform instance this service connects to.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SERVICE_ID</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">This service's identifier as registered on the Nucleus platform.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SU_USER_NAME</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Super-user account name used to sign in to Nucleus and fetch configuration.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SU_USER_SECRET</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Super-user account password/secret used to sign in to Nucleus.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SERVICE_SECRET</code></td>
+              <td>Central, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Credential secret used for service-to-service authentication after startup.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_SERVICE_GRANT_TYPE</code></td>
+              <td>Central, required</td>
+              <td>&mdash;</td>
+              <td class="desc">The authentication grant type used for service-to-service authentication after startup.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout note">
+        <span class="label">Why these stay local</span>
+        <p>The Nucleus connection credentials have to be available before the service can reach Nucleus at all, so they can't themselves be supplied by Nucleus — they always come from the local <code class="field">.env</code> file.</p>
+      </div>
+    </section>
+
+    <section id="cors">
+      <p class="section-num">07</p>
+      <h2>CORS &amp; security headers</h2>
+      <p class="section-sub">Controls cross-origin access and browser security headers on API responses.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_ALLOWED_CORS_ORIGIN</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">*</code></td>
+              <td class="desc">Which origins may call the API from a browser. Use <code class="field">*</code> to allow any origin, or a comma-separated list of specific origins to restrict it.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_ALLOWED_CORS_METHODS</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">DELETE, POST, GET, OPTIONS, PATCH, PUT</code></td>
+              <td class="desc">Which HTTP methods a cross-origin browser request is allowed to use.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_ALLOWED_CORS_HEADERS</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">Content-Type, Authorization, Origin, Accept, X-Requested-With, x-access-token</code></td>
+              <td class="desc">Which request headers a cross-origin browser request is allowed to send.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_X_FRAME_OPTIONS</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">DENY</code></td>
+              <td class="desc">Controls whether the site can be displayed inside a frame on another page. <code class="field">DENY</code> blocks this entirely; <code class="field">SAMEORIGIN</code> allows it only from the same site.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_CONTENT_SECURITY_POLICY</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">frame-ancestors 'none'</code></td>
+              <td class="desc">Sets the browser content security policy for responses.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_IGNORED_HEADERS</code></td>
+              <td>Local / Central</td>
+              <td><code class="field">X-Powered-By, X-Custom</code></td>
+              <td class="desc">Response headers to remove before a response leaves the service, so internal implementation details aren't exposed to callers.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="encryption">
+      <p class="section-num">08</p>
+      <h2>Encryption</h2>
+      <p class="section-sub">Controls encryption of sensitive values exchanged with Nucleus.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_ENABLE_SECRET_ENCRYPTION</code></td>
+              <td>Local only</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Turns on encryption of secrets exchanged with Nucleus during sign-in.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_ENCRYPTION_SECRET</code></td>
+              <td>Central, required when encryption is enabled</td>
+              <td>&mdash;</td>
+              <td class="desc">The encryption key used when secret encryption is turned on.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="integrations">
+      <p class="section-num">09</p>
+      <h2>Integration endpoints</h2>
+      <p class="section-sub">Where connected platforms and services are reached.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_GRAVITY_BASE_URL</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Address of the Gravity platform, used for user-group/property lookups, registration, and survey data.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_AI_CONNECT_BASE_URL</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Address of the AI-Connect service, used for sentiment analysis, transcription, translation, and AI summaries.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_AI_CONNECT_TRANSLATE_BEFORE_SENTIMENT_ANALYSIS</code></td>
+              <td>Central</td>
+              <td><code class="field">true</code></td>
+              <td class="desc">When enabled, text is translated before sentiment analysis is run on it.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_OLFS_BASE_URL</code></td>
+              <td>Local only, required</td>
+              <td>&mdash;</td>
+              <td class="desc">Address of the file upload/storage service used for media and document handling.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_CALLBACK_URL</code></td>
+              <td>Local only, required when speech/NLP is enabled</td>
+              <td>&mdash;</td>
+              <td class="desc">The URL background jobs call back to when they finish processing. Required when automatic speech/NLP processing is enabled.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="speech">
+      <p class="section-num">10</p>
+      <h2>Speech &amp; language</h2>
+      <p class="section-sub">Controls automated speech-to-text and language handling.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_ENABLE_ASR_NLP</code></td>
+              <td>Central</td>
+              <td><code class="field">true</code></td>
+              <td class="desc">Turns on automatic speech recognition and natural-language processing for interactions.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DEFAULT_LANGUAGE_CODE</code></td>
+              <td>Central</td>
+              <td><code class="field">en-us</code></td>
+              <td class="desc">The primary language used for speech-to-text and language processing.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_ALTERNATIVE_LANGUAGE_CODES</code></td>
+              <td>Central</td>
+              <td>&mdash; (none)</td>
+              <td class="desc">A comma-separated list of additional languages to consider during speech recognition, alongside the default language.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="recordfetch">
+      <p class="section-num">11</p>
+      <h2>Record fetch limits</h2>
+      <p class="section-sub">Controls how many records can be listed or fetched at once.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_RECORD_FETCH_MAX_LIMIT</code></td>
+              <td>Central</td>
+              <td><code class="field">30</code></td>
+              <td class="desc">The maximum number of records a single request is allowed to fetch, regardless of what's requested.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_RECORD_FETCH_DEFAULT_LIMIT</code></td>
+              <td>Central</td>
+              <td><code class="field">20</code></td>
+              <td class="desc">The number of records fetched when a request doesn't specify a limit.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_MEDIA_RECORD_FETCH_MAX_DATE_RANGE_DAYS</code></td>
+              <td>Central</td>
+              <td><code class="field">90</code></td>
+              <td class="desc">The widest date range, in days, a media record search is allowed to cover in one request.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_RECORD_FETCH_REQUEST_TIMEOUT</code></td>
+              <td>Central</td>
+              <td><code class="field">5000</code> ms</td>
+              <td class="desc">How long, in milliseconds, a record-fetch request is allowed to take before timing out.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="logging">
+      <p class="section-num">12</p>
+      <h2>Logging</h2>
+      <p class="section-sub">Controls what gets logged, where, and how logs are kept.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Source</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_DIR_PATH</code></td>
+              <td>Central, required for file logging</td>
+              <td>&mdash;</td>
+              <td class="desc">The folder log files are written to when file logging is enabled.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_LEVEL</code></td>
+              <td>Central</td>
+              <td><code class="field">debug</code></td>
+              <td class="desc">The minimum severity of messages that get logged (e.g. error, warn, info, debug). Can be adjusted at runtime without a restart.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_DATE_FORMAT</code></td>
+              <td>Central</td>
+              <td><code class="field">DD-MM-YYYY</code></td>
+              <td class="desc">The date format used when naming rotated log files.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_DATETIME_FORMAT</code></td>
+              <td>Central</td>
+              <td><code class="field">MMM DD, YYYY, hh:mm:ss A</code></td>
+              <td class="desc">The date/time format used for each timestamp inside log entries.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_MAX_ROLLING_FILE_SIZE</code></td>
+              <td>Central</td>
+              <td><code class="field">10m</code> (10&nbsp;MB)</td>
+              <td class="desc">The maximum size a log file can reach before it's rotated out and a new one starts.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_MAX_ROLLING_FILES</code></td>
+              <td>Central</td>
+              <td><code class="field">14d</code></td>
+              <td class="desc">How many rotated log files are kept before the oldest ones are removed.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_COMPRESSION</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Compresses rotated-out log files to save disk space.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_FILE_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Turns on writing logs to file. When off, logs are only written to the console.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_HTTP_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Turns on detailed logging of individual API requests and responses.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_HTTP_REQUEST_HEADER_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Includes request headers in the HTTP request/response log, when that logging is on.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_HTTP_REQUEST_BODY_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Includes the request body in the HTTP request/response log, when that logging is on.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_HTTP_RESPONSE_HEADER_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Includes response headers in the HTTP request/response log, when that logging is on.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_ENABLE_HTTP_RESPONSE_BODY_LOG</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Includes the response body in the HTTP request/response log, when that logging is on.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_LOGGING_REQUIRE_AUTH_FOR_LEVEL_API</code></td>
+              <td>Central</td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Requires authentication to change the logging level through its management endpoint.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="database">
+      <p class="section-num">13</p>
+      <h2>Database</h2>
+      <p class="section-sub">Connection and pool settings for the application database. Managed centrally through Nucleus.</p>
+      <div class="table-wrap">
+        <table class="fields">
+          <thead>
+            <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_DOMAIN</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Database server host/address.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_PORT</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Database server port.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_NAME</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Name of the database to connect to.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_USER</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Database login username.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_SECRET</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Database login password.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_MAX_POOL_SIZE</code></td>
+              <td><code class="field">50</code></td>
+              <td class="desc">Maximum number of concurrent database connections kept open.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_MIN_POOL_SIZE</code></td>
+              <td><code class="field">2</code></td>
+              <td class="desc">Minimum number of database connections kept open and ready.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_MAX_IDLE_TIMEOUT_MS</code></td>
+              <td><code class="field">30000</code></td>
+              <td class="desc">How long, in milliseconds, an unused database connection can stay open before being closed.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_SOCKET_TIMEOUT_MS</code></td>
+              <td><code class="field">45000</code></td>
+              <td class="desc">How long, in milliseconds, a database operation can run before timing out.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_SERVER_TIMEOUT_MS</code></td>
+              <td><code class="field">5000</code></td>
+              <td class="desc">How long, in milliseconds, the service waits when first trying to reach the database server.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_QUEUE_TIMEOUT_MS</code></td>
+              <td><code class="field">10000</code></td>
+              <td class="desc">How long, in milliseconds, a request can wait for a free database connection before timing out.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_AUTH_SOURCE</code></td>
+              <td><code class="field">admin</code></td>
+              <td class="desc">The database used to authenticate the connection credentials against.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_ENABLED</code></td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Turns on an encrypted (TLS) connection to the database.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_CA_FILE</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Path to the certificate authority file used to validate the database's TLS certificate.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_CERTIFICATE_KEY_FILE</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Path to the client certificate/key file used for the database's TLS connection, if required.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_CERTIFICATE_KEY_PASSWORD</code></td>
+              <td>&mdash;</td>
+              <td class="desc">Password protecting the client certificate/key file above, if it has one.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_ALLOW_INVALID_CERTIFICATE</code></td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Allows the database TLS connection even if its certificate can't be validated.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_TLS_ALLOW_INVALID_HOST_NAMES</code></td>
+              <td><code class="field">false</code></td>
+              <td class="desc">Allows the database TLS connection even if the certificate's hostname doesn't match.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_USE_NEW_URL_PARSER</code></td>
+              <td><code class="field">true</code></td>
+              <td class="desc">Database driver connection-string parsing behavior.</td>
+            </tr>
+            <tr>
+              <td><code class="field">PLAY_SYS_DB_USE_UNIFIED_TOPOLOGY</code></td>
+              <td><code class="field">true</code></td>
+              <td class="desc">Database driver server-monitoring behavior.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="faq">
+      <p class="section-num">14</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">A few things that come up when working with these settings.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <p class="q">I changed a value locally but nothing happened. Why?</p>
+          <p class="a">The service only reads the local <code class="field">.env</code> file when it starts. Restart the service after changing a local value.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I still run the service using only local database settings?</p>
+          <p class="a">No — database connection settings are always managed centrally through Nucleus now. There is no local-only database mode.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">A setting I need isn't configured centrally yet. What happens?</p>
+          <p class="a">Nothing breaks — settings that support a central value also have a sensible built-in default, so the service keeps running on that default until the setting is configured centrally. A few settings have no default and must be provided from somewhere before the service can start.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What happens if file logging isn't turned on?</p>
+          <p class="a">Logs are still written to the console, just not saved to a file. Turn on the file-logging setting to also have logs saved to disk.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I allow more than one origin for CORS?</p>
+          <p class="a">Yes — set the allowed-origin setting to a comma-separated list of exact origins instead of <code class="field">*</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Infrastructure — Environment Configuration Guide
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
