@@ -14,5 +14,6 @@ Standalone HTML documentation for individual PLAY features. Each feature gets it
 | Response Headers Configuration (PlayWeb) | [`response-headers-config-playweb/`](response-headers-config-playweb/index.html) | `.env`-driven CORS and security response headers, and stripping headers like `X-Powered-By`, on the PlayWeb host server. |
 | Environment / .env Configuration Migration (PlayService) | [`env-config-migration/`](env-config-migration/index.html) | PlayService's `PLAY_SYS_*` env var rename, Nucleus-first config resolution, removed local-DB-config mode, and the new graceful shutdown timeout. |
 | PlayWeb Host Runtime Configuration | [`playweb-runtime-config/`](playweb-runtime-config/index.html) | PlayWeb's backend addresses, app code, credentials, and encryption key now served dynamically from `host/.env` at page load, plus the new dev/production runtime switch. |
+| Session Data APIs | [`session-data-apis/`](session-data-apis/index.html) | `GET /play-api/{ai-rating,ratings,sentiment,summary,transcripts}-bysession/:xsessid` — how to call each endpoint, what it returns, and its error cases. |
 
 When adding a new feature folder here, add a row to this table.
