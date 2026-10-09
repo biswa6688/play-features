@@ -15,5 +15,9 @@ Standalone HTML documentation for individual PLAY features. Each feature gets it
 | Environment / .env Configuration Migration (PlayService) | [`env-config-migration/`](env-config-migration/index.html) | PlayService's `PLAY_SYS_*` env var rename, Nucleus-first config resolution, removed local-DB-config mode, and the new graceful shutdown timeout. |
 | PlayWeb Host Runtime Configuration | [`playweb-runtime-config/`](playweb-runtime-config/index.html) | PlayWeb's backend addresses, app code, credentials, and encryption key now served dynamically from `host/.env` at page load, plus the new dev/production runtime switch. |
 | Session Data APIs | [`session-data-apis/`](session-data-apis/index.html) | `GET /play-api/{ai-rating,ratings,sentiment,summary,transcripts}-bysession/:xsessid` — how to call each endpoint, what it returns, and its error cases. |
+| Transcript Translation | [`translation/`](translation/index.html) | Translating a call, video or chat transcript into any language from a searchable list, with a tab per language, download and remove. |
+| Agent and Customer Wise Questions | [`agent-customer-questions/`](agent-customer-questions/index.html) | Rating versions with a User Type (Agent, Customer or Both), the version menu tree, and the Customer / per-agent tabs on the Ratings tab. |
+| Keywords and Aliases | [`keyword-aliases/`](keyword-aliases/index.html) | Adding process keywords with aliases (any language) that are counted together in the recording summary, with entry shortcuts and limits. |
+| Media Decryption with Keys | [`media-decryption/`](media-decryption/index.html) | Saving an encryption key per channel, switching Encryption on, and how encrypted recordings are unlocked in the browser and played; error messages explained. |
 
 When adding a new feature folder here, add a row to this table.

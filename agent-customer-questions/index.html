@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent and Customer Wise Questions — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#tree">Where versions are kept</a></li>
+      <li><a href="#add">Add a version for the agent or the customer</a></li>
+      <li><a href="#example">Example: one outbound call, two versions</a></li>
+      <li><a href="#review">What reviewers see</a></li>
+      <li><a href="#tips">Good to know</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Process Version Setting</span>
+      <h1>Agent and Customer Wise Questions</h1>
+      <p class="lede">Keep the questions about the agent and the questions about the customer in separate rating versions, so each person on a recording is rated only on what applies to them.</p>
+      <div class="meta-row">
+        <span class="path"><b>Settings</b><span class="sep">→</span><b>Process</b><span class="sep">→</span><b>a process</b><span class="sep">→</span><b>Version</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A short primer before you configure anything.</p>
+      <p>A rating form used to be one list of questions for the whole recording. Now every <b>version</b> belongs to a <b>User Type</b> — <b>Agent</b>, <b>Customer</b> or <b>Both</b> — and the right questions are shown for the right person.</p>
+      <ul class="plain">
+        <li><b>Agent</b> versions hold questions about the agent — greeting, listening, empathy, offering a solution.</li>
+        <li><b>Customer</b> versions hold questions about the customer — explaining the reason for the call, giving the required details, staying cooperative.</li>
+        <li><b>Both</b> is for a version whose questions apply to either person.</li>
+      </ul>
+      <p class="tight">When a reviewer opens the <b>Ratings</b> tab of a recording, there is a tab for the customer and one tab for each agent who took part, and each tab shows its own questions.</p>
+    </section>
+
+    <section id="tree">
+      <p class="section-num">02</p>
+      <h2>Where versions are kept</h2>
+      <p class="section-sub">The version menu in the process settings.</p>
+      <p>Open <b>Settings → Process</b>, choose your process, and look under <b>Version</b> in the left menu. Versions are organised as a tree, with a count beside each level:</p>
+      <p class="tight"><b>Channel</b> (Call, Chat, Email, Video) → <b>Interaction</b> (Inbound / Outbound) → <b>User Type</b> (Agent / Customer) → the versions themselves.</p>
+      <p>Next to <b>Add New</b> there are three small icons: import a version, copy an existing version, or add a new one with the <b>+</b> icon.</p>
+      <figure class="shot"><img src="images/version-user-type.gif" alt="Open a channel in the Version menu, start adding a version and choose its User Type." loading="lazy"><figcaption><span class="gif-badge">Animation</span>Open a channel in the Version menu, start adding a version and choose its User Type.</figcaption></figure>
+    </section>
+
+    <section id="add">
+      <p class="section-num">03</p>
+      <h2>Add a version for the agent or the customer</h2>
+      <p class="section-sub">What to do, step by step.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the channel</div>
+          <div class="step-body">Under <b>Version</b>, click the channel (for example <b>Call</b>) to expand it.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <b>+</b> next to Add New</div>
+          <div class="step-body">The <b>Add version</b> dialog opens for that channel.</div>
+        </li>
+        <li>
+          <div class="step-title">Name it</div>
+          <div class="step-body">Type a clear name in <b>Enter Version Name</b>, for example <i>OB Agent Evaluation Criteria</i>.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose the interaction</div>
+          <div class="step-body">Select <b>Inbound</b> or <b>Outbound</b> in <b>Interaction</b>.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose the User Type</div>
+          <div class="step-body">Select <b>Agent</b>, <b>Customer</b> or <b>Both</b>. This decides who the questions are asked about.</div>
+        </li>
+        <li>
+          <div class="step-title">Submit, then add categories and questions</div>
+          <div class="step-body">Click <b>Submit</b>. The version appears in the tree under its interaction and user type; open it to add its categories and questions.</div>
+        </li>
+      </ol>
+      <p>The <b>Copy</b> and <b>Import</b> dialogs have the same <b>User Type</b> choice, so a copied or imported version can be given a different audience.</p>
+      <figure class="shot"><img src="images/add-version-dialog.png" alt="The Add version dialog with the User Type choice." loading="lazy"><figcaption>The Add version dialog with the User Type choice.</figcaption></figure>
+    </section>
+
+    <section id="example">
+      <p class="section-num">04</p>
+      <h2>Example: one outbound call, two versions</h2>
+      <p class="section-sub">How the questions differ.</p>
+      <p>A process keeps two versions for outbound calls — one for the agent and one for the customer. Each has its own categories and questions.</p>
+      <figure class="shot"><img src="images/version-customer.png" alt="The Customer version, with categories such as Customer Clarity and Customer Experience." loading="lazy"><figcaption>The Customer version, with categories such as Customer Clarity and Customer Experience.</figcaption></figure>
+      <div class="table-wrap"><table>
+<tr><th>Version</th><th>User Type</th><th>Sample questions</th></tr>
+<tr><td>OB Agent Evaluation Criteria</td><td>Agent</td><td>Did the agent greet the customer and introduce themselves by name? · Did the agent listen without interrupting the customer? · Did the agent offer a clear solution or next step?</td></tr>
+<tr><td>OB Customer Evaluation Criteria</td><td>Customer</td><td>Was the customer able to explain the reason for the call clearly? · Did the customer provide the required details when asked? · Did the customer confirm that the issue was resolved?</td></tr>
+</table></div>
+    </section>
+
+    <section id="review">
+      <p class="section-num">05</p>
+      <h2>What reviewers see</h2>
+      <p class="section-sub">The Ratings tab of a recording.</p>
+      <p>Open a recording and click <b>Ratings</b>. Tabs run across the top: <b>Customer</b>, followed by one tab per agent on the call. Click a tab to see that person’s questions.</p>
+      <figure class="shot"><img src="images/ratings-tabs.gif" alt="Open the Ratings tab, then switch from the Customer tab to an agent tab." loading="lazy"><figcaption><span class="gif-badge">Animation</span>Open the Ratings tab, then switch from the Customer tab to an agent tab.</figcaption></figure>
+      <div class="figgrid"><figure class="shot"><img src="images/ratings-customer.png" alt="Customer tab: questions about the customer." loading="lazy"><figcaption>Customer tab: questions about the customer.</figcaption></figure><figure class="shot"><img src="images/ratings-agent.png" alt="Agent tab: questions about that agent." loading="lazy"><figcaption>Agent tab: questions about that agent.</figcaption></figure></div>
+      <div class="callout note"><b>Several agents, one call.</b> If a call was handled by more than one agent, each agent gets their own tab and is rated separately on the Agent questions.</div>
+      <div class="callout note"><b>Hiding the Customer tab.</b> Your administrator can switch the Customer tab off for manual ratings and for AI ratings; when it is off, only the agent tabs are shown.</div>
+    </section>
+
+    <section id="tips">
+      <p class="section-num">06</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">Choosing the right User Type.</p>
+      <div class="table-wrap"><table>
+<tr><th>If the questions are about…</th><th>Choose</th></tr>
+<tr><td>The agent’s behaviour, language or process steps</td><td>Agent</td></tr>
+<tr><td>The customer’s clarity, cooperation or satisfaction</td><td>Customer</td></tr>
+<tr><td>Something that fits both, such as overall call quality</td><td>Both</td></tr>
+</table></div>
+      <p class="tight">Versions created before this feature keep working: records saved earlier and new records both display correctly.</p>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Process Version Settings — Agent and Customer Wise Questions
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

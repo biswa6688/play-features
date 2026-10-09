@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Decryption with Keys — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#steps">Set it up in two steps</a></li>
+      <li><a href="#algos">Algorithms and keys</a></li>
+      <li><a href="#play">Playing an encrypted recording</a></li>
+      <li><a href="#errors">If something goes wrong</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Process Setting</span>
+      <h1>Media Decryption with Keys</h1>
+      <p class="lede">Keep your recordings encrypted in storage and still play them in PLAY: add the key once, switch Encryption on for the channel, and PLAY unlocks the media in your browser as you listen.</p>
+      <div class="meta-row">
+        <span class="path"><b>Settings</b><span class="sep">→</span><b>Process</b><span class="sep">→</span><b>a process</b><span class="sep">→</span><b>Encryption Keys</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A short primer before you configure anything.</p>
+      <p>Recordings of some channels are stored <b>encrypted</b>, so only someone holding the key can listen to them. PLAY lets you save that key against the channel, and then:</p>
+      <ul class="plain">
+        <li>checks each recording as it opens, <b>from the file itself</b>, to see whether it needs unlocking;</li>
+        <li>unlocks encrypted files <b>in your browser</b> and plays them — audio, video and waveform players alike;</li>
+        <li>plays ordinary files straight away, with no extra step.</li>
+      </ul>
+      <p class="tight">The unlocked copy exists only in your browser while you listen. It is not saved or sent anywhere.</p>
+    </section>
+
+    <section id="steps">
+      <p class="section-num">02</p>
+      <h2>Set it up in two steps</h2>
+      <p class="section-sub">Key first, then the switch.</p>
+      <p><b>Step 1 — save the key for the channel.</b></p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open Encryption Keys</div>
+          <div class="step-body">Go to <b>Settings → Process</b>, choose the process, and click <b>Encryption Keys</b> in the left menu. The table has one row per channel (Call, Chat, Video…).</div>
+        </li>
+        <li>
+          <div class="step-title">Add or edit the row</div>
+          <div class="step-body">Click <b>Add key</b> for a channel without a key, or the pencil icon to change one.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose the algorithm</div>
+          <div class="step-body">Pick the algorithm the files were encrypted with (see the table below).</div>
+        </li>
+        <li>
+          <div class="step-title">Paste the key</div>
+          <div class="step-body">Paste it into <b>Key</b>. Tick <b>Validate key format (optional)</b> if you want PLAY to check its length before saving.</div>
+        </li>
+        <li>
+          <div class="step-title">Save</div>
+          <div class="step-body">Click <b>Save</b>. The key now shows masked, with only its last characters visible.</div>
+        </li>
+      </ol>
+      <figure class="shot"><img src="images/encryption-keys.gif" alt="Open the Encryption Keys page: one key per channel, shown masked." loading="lazy"><figcaption><span class="gif-badge">Animation</span>Open the Encryption Keys page: one key per channel, shown masked.</figcaption></figure>
+      <p><b>Step 2 — turn Encryption on for the channel.</b></p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the channel’s storage settings</div>
+          <div class="step-body">In the process, open the channel (for example <b>Call Channel Configuration</b>).</div>
+        </li>
+        <li>
+          <div class="step-title">Click the pencil, then switch <b>Encryption</b> on</div>
+          <div class="step-body">The switch can only be turned on once the channel has a key — otherwise it shows <i>Add an encryption key for this channel to turn this on</i>.</div>
+        </li>
+        <li>
+          <div class="step-title">Save</div>
+          <div class="step-body">Save the channel. Recordings of this channel now play with the key.</div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="algos">
+      <p class="section-num">03</p>
+      <h2>Algorithms and keys</h2>
+      <p class="section-sub">Which choice fits your files.</p>
+      <div class="table-wrap"><table>
+<tr><th>Algorithm</th><th>Key size</th><th>Notes</th></tr>
+<tr><td>AES-128-ECB</td><td>16 characters</td><td>Simplest layout: the file is just the encrypted audio or video.</td></tr>
+<tr><td>AES-256-ECB</td><td>32 characters</td><td>Same layout, longer key.</td></tr>
+<tr><td>AES-128-CBC / AES-256-CBC</td><td>16 / 32 characters</td><td>The file starts with a 16-byte starting value, followed by the encrypted media.</td></tr>
+<tr><td>AES-128-GCM / AES-256-GCM</td><td>16 / 32 characters</td><td>The file starts with a 12-byte starting value and ends with a 16-byte check value.</td></tr>
+</table></div>
+      <p>The key can be written as plain text, as hexadecimal, or as base64 — whichever gives exactly the size in the table. Keys are stored encrypted and <b>cannot be viewed again</b> after saving; use the copy icon to copy one, or enter a new key to replace it. When editing, leave the key box empty to keep the current key.</p>
+    </section>
+
+    <section id="play">
+      <p class="section-num">04</p>
+      <h2>Playing an encrypted recording</h2>
+      <p class="section-sub">Nothing extra to do.</p>
+      <p>Open the recording as usual. PLAY looks at the start of the file: if it is an ordinary audio or video file it plays directly; if it is not, and the channel has Encryption on, PLAY unlocks it with the channel’s key and plays it.</p>
+      <figure class="shot"><img src="images/play-encrypted.gif" alt="Open a recording of an encrypted channel; it is unlocked and plays like any other." loading="lazy"><figcaption><span class="gif-badge">Animation</span>Open a recording of an encrypted channel; it is unlocked and plays like any other.</figcaption></figure>
+      <p class="tight">Files recognised as ordinary media include wav, mp3, aac, ogg, flac, mp4, m4a, mov, webm, mkv, aiff, au and amr. They are never put through decryption, even when the channel has Encryption on — so a channel can safely hold a mix of encrypted and plain files.</p>
+    </section>
+
+    <section id="errors">
+      <p class="section-num">05</p>
+      <h2>If something goes wrong</h2>
+      <p class="section-sub">What each message means.</p>
+      <div class="table-wrap"><table>
+<tr><th>What you see</th><th>Likely reason</th><th>What to do</th></tr>
+<tr><td><b>Failed to decrypt</b> audio file</td><td>The key or algorithm does not match the one used to encrypt the file, or the file is damaged.</td><td>Check the algorithm and key on the Encryption Keys page and save the correct one.</td></tr>
+<tr><td><b>Audio / Media file not found</b></td><td>The file could not be reached at its storage address.</td><td>Check the channel’s storage address; this is not a key problem.</td></tr>
+<tr><td>Plays, but the Encryption switch is on</td><td>The file was not encrypted, so PLAY played it directly.</td><td>Nothing — this is expected.</td></tr>
+<tr><td>Encryption switch cannot be turned on</td><td>The channel has no key yet.</td><td>Add the key first, then switch it on.</td></tr>
+</table></div>
+      <figure class="shot"><img src="images/wrong-key.gif" alt="With a key that does not match the file, the player says it failed to decrypt." loading="lazy"><figcaption><span class="gif-badge">Animation</span>With a key that does not match the file, the player says it failed to decrypt.</figcaption></figure>
+      <div class="callout note"><b>Keep keys safe.</b> Anyone with the key can unlock your recordings. Share it only with people who need it, and replace it if it may have been exposed.</div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Process Settings — Media Decryption with Keys
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
