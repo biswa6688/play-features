@@ -19,5 +19,6 @@ Standalone HTML documentation for individual PLAY features. Each feature gets it
 | Agent and Customer Wise Questions | [`agent-customer-questions/`](agent-customer-questions/index.html) | Rating versions with a User Type (Agent, Customer or Both), the version menu tree, and the Customer / per-agent tabs on the Ratings tab. |
 | Keywords and Aliases | [`keyword-aliases/`](keyword-aliases/index.html) | Adding process keywords with aliases (any language) that are counted together in the recording summary, with entry shortcuts and limits. |
 | Media Decryption with Keys | [`media-decryption/`](media-decryption/index.html) | Saving an encryption key per channel, switching Encryption on, and how encrypted recordings are unlocked in the browser and played; error messages explained. |
+| Voice Percentage Detection | [`voice-percentage-detection/`](voice-percentage-detection/index.html) | How PLAY measures how much of a call or video recording is speech before generating a transcript — FFmpeg prepares the sound, Silero VAD scores it, the minimum speech ratio setting, and what you see when a recording is too quiet. |
 
 When adding a new feature folder here, add a row to this table.

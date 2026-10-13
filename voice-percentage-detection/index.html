@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Percentage Detection — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#how">How PLAY measures speech</a></li>
+      <li><a href="#example">A worked example</a></li>
+      <li><a href="#see">What you see</a></li>
+      <li><a href="#settings">Settings</a></li>
+      <li><a href="#good">Good to know</a></li>
+      <li><a href="#errors">If something goes wrong</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Transcript Generation</span>
+      <h1>Voice Percentage Detection</h1>
+      <p class="lede">Before PLAY turns a call or video recording into a transcript, it listens to the file and works out how much of it is real speech. Recordings that are mostly silence, hum or noise are stopped early, so you do not wait for a transcript that would be empty.</p>
+      <div class="meta-row">
+        <span class="path"><b>Recording List</b><span class="sep">→</span><b>a call or video record</b><span class="sep">→</span><b>Transcript</b><span class="sep">→</span><b>Generate Transcript</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A quick quality check on the sound, before the transcript.</p>
+      <p>When you click <b>Generate Transcript</b> on a call or video recording, PLAY first asks: <i>how much of this recording is somebody talking?</i> The answer is a single number, the <b>voice percentage</b>:</p>
+      <ul class="plain">
+        <li><b>100%</b> — people are talking the whole time.</li>
+        <li><b>50%</b> — about half of the recording is speech, the rest is pauses or background sound.</li>
+        <li><b>0%</b> — no speech was found at all.</li>
+      </ul>
+      <p>If the number is lower than the minimum your organisation has chosen, PLAY tells you and does not generate the transcript for that recording.</p>
+      <p class="tight">The check only <b>reads</b> the recording. Nothing is changed, saved or sent anywhere else, and the recording plays exactly as before.</p>
+    </section>
+
+    <section id="how">
+      <p class="section-num">02</p>
+      <h2>How PLAY measures speech</h2>
+      <p class="section-sub">Two tools, one after the other: <b>FFmpeg</b> prepares the sound, <b>Silero VAD</b> listens to it.</p>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 760 150" role="img" aria-label="Diagram: the recording goes through FFmpeg, which converts it to a standard sound format, then through Silero VAD, which scores every 32 millisecond slice, and PLAY counts the speech slices to get the voice percentage.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+
+          <rect x="8" y="30" width="150" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="83" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">Recording</text>
+          <text x="83" y="82" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">call or video file</text>
+
+          <line x1="160" y1="68" x2="198" y2="68" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow)"></line>
+
+          <rect x="200" y="30" width="170" height="76" rx="8" fill="none" style="stroke: var(--accent)" stroke-width="1.6"></rect>
+          <text x="285" y="58" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--accent)">1 · FFmpeg</text>
+          <text x="285" y="77" text-anchor="middle" font-size="11" style="fill: var(--accent)" opacity="0.9">turns it into plain sound:</text>
+          <text x="285" y="92" text-anchor="middle" font-size="11" style="fill: var(--accent)" opacity="0.9">one channel, 16,000 samples/s</text>
+
+          <line x1="372" y1="68" x2="410" y2="68" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow)"></line>
+
+          <rect x="412" y="30" width="170" height="76" rx="8" fill="none" style="stroke: var(--accent)" stroke-width="1.6"></rect>
+          <text x="497" y="58" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--accent)">2 · Silero VAD</text>
+          <text x="497" y="77" text-anchor="middle" font-size="11" style="fill: var(--accent)" opacity="0.9">scores every 32 ms slice:</text>
+          <text x="497" y="92" text-anchor="middle" font-size="11" style="fill: var(--accent)" opacity="0.9">how likely is it speech?</text>
+
+          <line x1="584" y1="68" x2="622" y2="68" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow)"></line>
+
+          <rect x="624" y="30" width="128" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="688" y="58" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">3 · Count</text>
+          <text x="688" y="77" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">speech slices</text>
+          <text x="688" y="92" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">÷ all slices</text>
+        </svg>
+        <figcaption>From recording to voice percentage.</figcaption>
+      </figure>
+
+      <p><b>Step 1 — FFmpeg prepares the sound.</b> <a href="https://ffmpeg.org/" target="_blank" rel="noopener">FFmpeg</a> is a well-known media tool. PLAY uses it to open your recording, whatever format it is in (wav, mp3, mp4 and so on), drop any picture from a video, and convert the sound to one plain channel at 16,000 samples per second. This is the one format the next step understands. The recording on your storage is not touched.</p>
+      <p><b>Step 2 — Silero VAD listens.</b> <a href="https://github.com/snakers4/silero-vad" target="_blank" rel="noopener">Silero VAD</a> is a small, open-source voice-detection model (VAD stands for <i>voice activity detection</i>). PLAY feeds it the sound in tiny pieces of <b>32 milliseconds</b> each, about thirty a second. For each piece the model gives a probability between 0 and 1 that someone is speaking. A piece with a probability of <b>0.5 or more counts as speech</b>; anything lower does not.</p>
+      <p><b>Step 3 — PLAY counts.</b> The voice percentage is the number of speech pieces divided by the number of all pieces, shown to two decimals. PLAY also works out the total length and the amount of speech in seconds.</p>
+
+      <div class="callout note"><b>Why a voice model and not just loudness?</b> Line hum, static and background noise can be loud without being speech, and real speech can be quiet. Silero VAD was trained to tell speech from other sound, so a noisy recording with nobody talking scores low, and a quiet recording with real conversation scores high.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-num">03</p>
+      <h2>A worked example</h2>
+      <p class="section-sub">Why a few numbers decide the outcome.</p>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 760 96" role="img" aria-label="A bar of 40 slices of a recording: 10 are coloured as speech and 30 as silence or noise, which is 25 percent speech.">
+          <text x="8" y="16" font-size="12" font-weight="700" fill="currentColor">Recording, cut into slices (each block stands for a group of 32 ms slices)</text>
+          <g stroke="currentColor" stroke-width="0.8">
+            <rect x="8" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="26" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="44" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="62" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="80" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="98" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="116" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="134" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="152" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="170" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="188" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="206" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="224" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="242" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="260" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="278" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="296" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="314" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="332" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="350" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="368" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="386" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="404" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="422" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="440" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="458" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="476" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="494" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="512" y="30" width="17" height="30" style="fill: var(--accent)" stroke="none"></rect>
+            <rect x="530" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="548" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="566" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="584" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="602" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="620" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="638" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="656" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="674" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="692" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+            <rect x="710" y="30" width="17" height="30" fill="none" opacity="0.45"></rect>
+          </g>
+          <rect x="8" y="74" width="12" height="12" style="fill: var(--accent)"></rect>
+          <text x="26" y="85" font-size="12" fill="currentColor">speech (10 blocks)</text>
+          <rect x="176" y="74" width="12" height="12" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6"></rect>
+          <text x="194" y="85" font-size="12" fill="currentColor">silence or noise (30 blocks)</text>
+          <text x="752" y="85" text-anchor="end" font-size="12" font-weight="700" fill="currentColor">10 ÷ 40 = 25%</text>
+        </svg>
+        <figcaption>Speech is counted wherever it occurs; the pauses between sentences count as not-speech.</figcaption>
+      </figure>
+
+      <p>A 10-minute call is 600 seconds, which is <b>18,750</b> slices of 32 ms (600 ÷ 0.032). Suppose the minimum is <b>15%</b>:</p>
+      <div class="table-wrap"><table>
+<tr><th>Slices heard as speech</th><th>Speech time</th><th>Voice percentage</th><th>Result</th></tr>
+<tr><td>5,000</td><td>160 seconds</td><td>26.67%</td><td>Passes — the transcript is generated.</td></tr>
+<tr><td>2,813</td><td>90 seconds</td><td>15.00%</td><td>Passes — exactly at the minimum is enough.</td></tr>
+<tr><td>1,500</td><td>48 seconds</td><td>8.00%</td><td>Stopped — below the minimum.</td></tr>
+<tr><td>0</td><td>0 seconds</td><td>0.00%</td><td>Stopped — no speech found.</td></tr>
+</table></div>
+    </section>
+
+    <section id="see">
+      <p class="section-num">04</p>
+      <h2>What you see</h2>
+      <p class="section-sub">From the click to the result.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open a call or video recording and go to Transcript</div>
+          <div class="step-body">Wait for the recording to load, then click the <b>Generate Transcript</b> button.</div>
+        </li>
+        <li>
+          <div class="step-title">PLAY checks the audio</div>
+          <div class="step-body">A loader shows while the voice percentage is measured. This takes a few seconds for a short call and longer for a long recording.</div>
+        </li>
+        <li>
+          <div class="step-title">If the speech is enough</div>
+          <div class="step-body">PLAY goes straight on and generates the transcript. You do nothing extra.</div>
+        </li>
+        <li>
+          <div class="step-title">If the speech is too low</div>
+          <div class="step-body">A warning appears: <i>Low speech detected (8%, minimum 15%)</i>. PLAY then asks for the transcript, is refused, and shows: <i>This recording doesn’t seem to contain enough speech to process (only about 8% detected, out of a required 15%). Please make sure the audio has actual conversation and isn’t mostly silence or background noise, then try again.</i></div>
+        </li>
+      </ol>
+      <p class="tight">Nothing is saved when a recording is stopped here, so you can try again, for example after checking that the right recording is attached.</p>
+    </section>
+
+    <section id="settings">
+      <p class="section-num">05</p>
+      <h2>Settings</h2>
+      <p class="section-sub">Chosen once for the whole organisation by your administrator.</p>
+      <div class="table-wrap"><table>
+<tr><th>Setting</th><th>What it does</th><th>Default</th></tr>
+<tr><td><b>Enable speech ratio detection</b></td><td>Turns the check on or off. When off, nothing is measured and every recording goes straight to the transcript, as before.</td><td>Off</td></tr>
+<tr><td><b>Minimum speech ratio</b></td><td>The lowest voice percentage that is accepted, from 0 to 100. A recording at or above it passes.</td><td>15 (%)</td></tr>
+</table></div>
+      <p>If the minimum is left empty, or holds something that is not a number between 0 and 100, PLAY uses 15%. A higher minimum is stricter: setting it to 40 stops recordings that are less than 40% speech.</p>
+      <div class="callout note"><b>Ask your administrator.</b> These two settings are part of the tenant configuration (<code class="field">PLAY_TNT_ENABLE_SPEECH_RATIO_DETECTION</code> and <code class="field">PLAY_TNT_MIN_SPEECH_RATIO</code>). They apply to every process of the organisation. After a change, sign in again so your screen picks it up.</div>
+    </section>
+
+    <section id="good">
+      <p class="section-num">06</p>
+      <h2>Good to know</h2>
+      <p class="section-sub">Where the check applies and where it does not.</p>
+      <ul class="plain">
+        <li><b>Call and video only.</b> Chat and email have no sound, so they are not checked.</li>
+        <li><b>Done once per attempt.</b> The result of the check is kept for a few minutes and reused when the transcript is requested, so the file is not analysed twice for one click.</li>
+        <li><b>Both silence and noise count as “not speech”.</b> The percentage is about speech, not about whether the recording is quiet or loud.</li>
+        <li><b>Longer recordings take longer.</b> The time to measure grows with the length of the recording.</li>
+        <li><b>The check is a guard, not a judgement of quality.</b> A recording with a brief but real conversation can still fall below a high minimum; lower the minimum if that is not what you want.</li>
+      </ul>
+    </section>
+
+    <section id="errors">
+      <p class="section-num">07</p>
+      <h2>If something goes wrong</h2>
+      <p class="section-sub">What each case usually means.</p>
+      <div class="table-wrap"><table>
+<tr><th>What you see</th><th>Likely reason</th><th>What to do</th></tr>
+<tr><td><b>Low speech detected</b> and the transcript is refused</td><td>The recording really has little speech, or it is the wrong or an almost-silent file.</td><td>Play the recording to confirm. If it is correct and you still need a transcript, ask your administrator to lower the minimum speech ratio.</td></tr>
+<tr><td>Says <b>0%</b> although the recording plays fine</td><td>PLAY could not read or decode the file for the check (for example the storage address was not reachable at that moment).</td><td>Open the recording again to confirm it plays, then retry. If it keeps happening, tell your administrator.</td></tr>
+<tr><td>No check at all, the transcript just starts</td><td>Speech ratio detection is switched off for the organisation.</td><td>Nothing — this is expected.</td></tr>
+<tr><td>Check runs but the transcript still does not start</td><td>The recording passed this check but another step failed, such as the speech-to-text service being unavailable.</td><td>Retry after a short while; the message on screen names the reason.</td></tr>
+</table></div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Transcript Generation — Voice Percentage Detection
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
