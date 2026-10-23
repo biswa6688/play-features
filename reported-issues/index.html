@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reported Issues — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#report">Report an issue</a></li>
+      <li><a href="#access">Who can see the list</a></li>
+      <li><a href="#list">The Reported Issues list</a></li>
+      <li><a href="#find">Search, filter and sort</a></li>
+      <li><a href="#review">Review an issue and change its status</a></li>
+      <li><a href="#rules">Rules and limits</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">AI Insights</span>
+      <h1>Reported Issues</h1>
+      <p class="lede">Users tell PLAY when an AI summary, rating or sentiment looks wrong. Administrators collect those reports in one list, look into each one and record what was done.</p>
+      <div class="meta-row">
+        <span class="path"><b>Recording List</b><span class="sep">→</span><b>a record</b><span class="sep">→</span><b>AI Insights</b><span class="sep">→</span><b>Report Issue</b></span>
+        <span class="path"><b>Reported Issues</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A feedback loop for the AI.</p>
+      <p>AI results are not always right. With <b>Report Issue</b> any user can flag a problem on the spot, in the part of the insights it concerns, and describe it in their own words. Nothing about the record changes. The report goes to a list that administrators work through, so the same mistakes can be found, fixed and tracked to the end.</p>
+      <p class="tight">Each report moves through four statuses:</p>
+      <div class="chips"><span><b>Open</b></span><span>In Review</span><span>Resolved</span><span>Rejected</span></div>
+      <p>It starts as <b>Open</b>. An administrator can move it to <b>In Review</b> while it is looked into, and finally to <b>Resolved</b> (something was done) or <b>Rejected</b> (the report is not accepted). Every change is kept with its date and the person who made it.</p>
+    </section>
+
+    <section id="report">
+      <p class="section-num">02</p>
+      <h2>Report an issue</h2>
+      <p class="section-sub">For every user, from the record itself.</p>
+      <p>Open a recording and click the <b>AI Insights</b> tab. When the record already has an AI summary, the <b>Report Issue</b> button appears at the right end of the tabs.</p>
+      <figure class="shot"><img src="images/ri-report-button.png" alt="A call record on the AI Insights tab with the Report Issue button at the right end of the tabs." loading="lazy"><figcaption>The Report Issue button sits at the right of the AI Insights tab.</figcaption></figure>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click Report Issue</div>
+          <div class="step-body">The <b>Report AI response</b> window opens.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose what the issue is about</div>
+          <div class="step-body">In <b>Report issue in</b> pick <b>All</b>, <b>Sentiment</b>, <b>Ratings</b>, <b>Summary</b>, <b>Key Takeaways</b>, <b>Keywords</b>, <b>Disposition</b>, <b>Next Action</b> or <b>Translation</b>.</div>
+        </li>
+        <li>
+          <div class="step-title">Describe the issue</div>
+          <div class="step-body">Under <b>What is the issue?</b> write what is inaccurate, outdated or misleading. This box is required and takes up to 2,000 characters.</div>
+        </li>
+        <li>
+          <div class="step-title">Submit</div>
+          <div class="step-body">Click <b>Submit Report</b>. The feedback is shared with the administrator.</div>
+        </li>
+      </ol>
+      <figure class="shot"><img src="images/ri-report-dialog-filled.png" alt="The Report AI response window with the section list and a typed description." loading="lazy"><figcaption>The Report AI response window with a description typed in.</figcaption></figure>
+      <div class="callout note"><b>Not seeing the button?</b> It appears only when the feature is switched on for your tenant (the tenant setting <code>PLAY_TNT_ENABLE_REPORT_AI_ISSUE</code> is <code>true</code>) and the record already has generated insights.</div>
+    </section>
+
+    <section id="access">
+      <p class="section-num">03</p>
+      <h2>Who can see the list</h2>
+      <p class="section-sub">Super admins only.</p>
+      <p>The <b>Reported Issues</b> icon in the left bar is shown only to the <b>super admins</b> of your installation, and only when the feature is switched on for the tenant. Super admins are the users whose login id is in the Nucleus setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>. For anyone else the icon is hidden, and opening the address by hand returns them to the home page.</p>
+      <div class="callout note"><b>For your infrastructure team.</b> Add <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> to the Sys configuration of PLAY in Nucleus, in every environment. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code>. Spaces and capital letters do not matter. The list is read when the PLAY service starts, so restart the service after changing it. If the setting is missing or empty, nobody sees the list.</div>
+    </section>
+
+    <section id="list">
+      <p class="section-num">04</p>
+      <h2>The Reported Issues list</h2>
+      <p class="section-sub">Every report in one table.</p>
+      <p>Click the <b>Reported Issues</b> icon in the left bar. The newest report is first, 20 to a page, with the page numbers at the bottom.</p>
+      <figure class="shot"><img src="images/ri-list.png" alt="The Reported Issues list: record id, process, channel, section, issue, status with a coloured badge, status date and reported by." loading="lazy"><figcaption>The Reported Issues list.</figcaption></figure>
+      <div class="table-wrap"><table>
+<tr><th>Column</th><th>Meaning</th></tr>
+<tr><td>Record ID</td><td>The record the issue was reported on.</td></tr>
+<tr><td>Process / Channel</td><td>The process and channel of that record.</td></tr>
+<tr><td>Section</td><td>The part of the insights the report is about.</td></tr>
+<tr><td>Issue</td><td>What the user wrote (a long text is shortened; open the row to read all of it).</td></tr>
+<tr><td>Status</td><td>A badge: Open, In Review, Resolved or Rejected.</td></tr>
+<tr><td>Status Date</td><td>When the status last changed.</td></tr>
+<tr><td>Reported By / Reported On</td><td>Who reported it, and when.</td></tr>
+</table></div>
+    </section>
+
+    <section id="find">
+      <p class="section-num">05</p>
+      <h2>Search, filter and sort</h2>
+      <p class="section-sub">Find the reports you need.</p>
+      <ul class="plain">
+        <li><b>Search</b> — type a record id in the box at the top right.</li>
+        <li><b>Filter</b> — click the funnel icon and choose any of <b>Record ID</b>, <b>Process</b>, <b>Channel</b>, <b>Status</b> and <b>Section</b>, then <b>Submit</b>. The filters work together, so a report must match all of them. <b>Clear</b> removes them. The Process list holds only processes that have at least one report.</li>
+        <li><b>Sort</b> — click the arrows next to a column heading to sort by it, and click again to reverse the order.</li>
+      </ul>
+      <figure class="shot"><img src="images/ri-filter.png" alt="The filter panel open on the Reported Issues list with Record ID, Process, Channel, Status and Section." loading="lazy"><figcaption>The filter panel.</figcaption></figure>
+    </section>
+
+    <section id="review">
+      <p class="section-num">06</p>
+      <h2>Review an issue and change its status</h2>
+      <p class="section-sub">Click a row to open it.</p>
+      <p>The window shows every detail of the report, the full text of the issue, the <b>Status History</b> (each status with its date and who set it), and — while the issue is not closed — a <b>Change status to</b> list.</p>
+      <figure class="shot"><img src="images/ri-details.png" alt="The Reported Issue window with the record details, the issue text, the status history and the Change status to list." loading="lazy"><figcaption>The details of a report that is In Review.</figcaption></figure>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Choose the next status</div>
+          <div class="step-body">Pick it in <b>Change status to</b>. Only later statuses are offered.</div>
+        </li>
+        <li>
+          <div class="step-title">Write the resolution (for Resolved or Rejected)</div>
+          <div class="step-body">A <b>Resolution</b> box appears. Describe what was done, or why the report is rejected. It is required and takes up to 2,000 characters.</div>
+        </li>
+        <li>
+          <div class="step-title">Save</div>
+          <div class="step-body">Click <b>Save</b>. The status, the date and your name are added to the history, and the list shows the new badge.</div>
+        </li>
+      </ol>
+      <div class="table-wrap"><table>
+<tr><th>Status</th><th>When it is used</th><th>Next</th></tr>
+<tr><td>Open</td><td>Just reported, nobody has looked yet.</td><td>In Review, Resolved or Rejected</td></tr>
+<tr><td>In Review</td><td>An administrator is looking into it.</td><td>Resolved or Rejected</td></tr>
+<tr><td>Resolved</td><td>Something was done. The resolution says what.</td><td>Closed</td></tr>
+<tr><td>Rejected</td><td>The report is not accepted. The resolution says why.</td><td>Closed</td></tr>
+</table></div>
+      <div class="callout warn"><b>Statuses only move forward.</b> A report cannot go back to an earlier status, and once it is <b>Resolved</b> or <b>Rejected</b> it is closed: the window says <i>This issue is closed; its status cannot be changed.</i></div>
+    </section>
+
+    <section id="rules">
+      <p class="section-num">07</p>
+      <h2>Rules and limits</h2>
+      <p class="section-sub">What PLAY checks.</p>
+      <div class="table-wrap"><table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td>Issue text</td><td>Required, up to 2,000 characters.</td></tr>
+<tr><td>Resolution</td><td>Required to set Resolved or Rejected, up to 2,000 characters.</td></tr>
+<tr><td>Report Issue button</td><td>Needs the tenant setting on and a record with generated insights.</td></tr>
+<tr><td>The list and status changes</td><td>Administrators only on the server; the menu item is shown to super admins.</td></tr>
+<tr><td>Page size</td><td>20 reports per page.</td></tr>
+</table></div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · AI Insights — Reported Issues
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

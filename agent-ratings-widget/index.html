@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Ratings Widget — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#where">Where to find it</a></li>
+      <li><a href="#period">Choose the period</a></li>
+      <li><a href="#processes">Pick a process</a></li>
+      <li><a href="#agents">Look at the agents</a></li>
+      <li><a href="#detail">One agent in detail</a></li>
+      <li><a href="#previous">Compare with the period before</a></li>
+      <li><a href="#score">How the score is worked out</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Dashboard</span>
+      <h1>Agent Ratings Widget</h1>
+      <p class="lede">See how each agent is scoring on the AI ratings of their conversations — per process, per channel and over time — and how that compares with the period before.</p>
+      <div class="meta-row">
+        <span class="path"><b>Dashboard</b><span class="sep">→</span><b>Agent Ratings</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">One place to compare agents.</p>
+      <p>Every conversation that has an <b>AI rating</b> gives each agent a score. The <b>Agent Ratings</b> widget gathers those scores and shows them in three levels: the <b>process</b>, the <b>agents</b> of that process, and one <b>agent</b> with a score for each channel and a trend. Colours tell you at a glance who is doing well and who needs help:</p>
+      <div class="table-wrap"><table>
+<tr><th>Band</th><th>Score</th><th>Colour</th></tr>
+<tr><td>Good</td><td>61 to 100</td><td>Green</td></tr>
+<tr><td>Average</td><td>31 to 60</td><td>Orange</td></tr>
+<tr><td>Poor</td><td>0 to 30</td><td>Red</td></tr>
+</table></div>
+      <figure class="shot"><img src="images/ar-widget.png" alt="The Agent Ratings widget: period buttons, the process list on the left, the summary and the agents in the middle and one agent in detail on the right." loading="lazy"><figcaption>The Agent Ratings widget, showing This Month.</figcaption></figure>
+    </section>
+
+    <section id="where">
+      <p class="section-num">02</p>
+      <h2>Where to find it</h2>
+      <p class="section-sub">It sits on the Dashboard.</p>
+      <p>Open the <b>Dashboard</b> (the first icon in the left bar) and scroll to <b>Agent Ratings</b>. Like the other dashboard widgets it spans the full width, can be moved and resized, and has a full-screen button at its top right corner. The title line tells you what you are looking at: <i>process › agent | period</i>. The large number at the top right is the <b>team average</b> of the selected process, with the number of conversations it is based on.</p>
+    </section>
+
+    <section id="period">
+      <p class="section-num">03</p>
+      <h2>Choose the period</h2>
+      <p class="section-sub">Five quick choices.</p>
+      <div class="table-wrap"><table>
+<tr><th>Button</th><th>Shows</th><th>Heat grid columns</th></tr>
+<tr><td>Today</td><td>The current day</td><td>3-hour blocks (0h, 3h … 21h)</td></tr>
+<tr><td>This Week</td><td>The current week</td><td>One column per day</td></tr>
+<tr><td>This Month</td><td>The current month</td><td>One column per week (W1, W2 …)</td></tr>
+<tr><td>This Year</td><td>The current year</td><td>One column per month</td></tr>
+<tr><td>Date Range</td><td>Any From and To date you enter</td><td>Days, weeks or months, depending on how long the range is</td></tr>
+</table></div>
+      <p class="tight">For <b>Date Range</b> choose both a <b>From</b> and a <b>To</b> date; otherwise you are asked to select them. The whole of the last day is included.</p>
+    </section>
+
+    <section id="processes">
+      <p class="section-num">04</p>
+      <h2>Pick a process</h2>
+      <p class="section-sub">The left column.</p>
+      <p>Each <b>process</b> gets a card with its average score, a bar, the number of agents and the number of conversations rated, and its band (<i>Good</i>, <i>Average</i>, <i>Poor</i>, or <i>None</i> when nothing was rated). Click a card to open that process. The first five are shown; click <b>Load more processes</b> for the rest.</p>
+      <ul class="plain">
+        <li><b>Sort</b> the cards by <b>Rating</b> or by <b>Name</b>; click the active one again to reverse the order.</li>
+        <li>The <b>funnel</b> icon filters the list by process name.</li>
+      </ul>
+    </section>
+
+    <section id="agents">
+      <p class="section-num">05</p>
+      <h2>Look at the agents</h2>
+      <p class="section-sub">The middle column.</p>
+      <p>The <b>Summary</b> boxes count how many agents of the process are Good, Average and Poor, with the records and the share they stand for. Below them the <b>Agents</b> are shown in the way you choose with <b>View by</b>:</p>
+      <ul class="plain">
+        <li><b>Agent</b> — one row per agent with a score bar, the score and the band. Use <b>Sort</b> (Rating or Name) and the funnel to find an agent by name.</li>
+        <li><b>Rating Type</b> — three columns, Good, Average and Poor, each listing the agents in that band with their scores.</li>
+        <li><b>Heat Grid</b> — a table of agents against time: each cell holds the agent’s score for that day, week or month, coloured by band. A dash means nothing was rated then.</li>
+      </ul>
+      <figure class="shot"><img src="images/ar-rating-type.png" alt="The widget with View by set to Rating Type: the agents split into Good, Average and Poor columns." loading="lazy"><figcaption>View by Rating Type — the agents sorted into their bands.</figcaption></figure>
+      <figure class="shot"><img src="images/ar-heat-grid.png" alt="The widget with View by set to Heat Grid: a row for each agent and a coloured cell for each week." loading="lazy"><figcaption>View by Heat Grid — see at once when an agent’s scores went up or down.</figcaption></figure>
+    </section>
+
+    <section id="detail">
+      <p class="section-num">06</p>
+      <h2>One agent in detail</h2>
+      <p class="section-sub">The right column.</p>
+      <p>Click an agent (in any view) to see them on the right: a ring with their score, their name, process and band, and how many conversations were rated. Under it:</p>
+      <ul class="plain">
+        <li><b>Channel</b> — a score bar for each channel the agent was rated on, with the previous period’s score beside it.</li>
+        <li><b>Heat Grid</b> — the agent’s score for each day, week or month of the period.</li>
+      </ul>
+      <p class="tight">The close button on the agent panel takes you back to the process view.</p>
+    </section>
+
+    <section id="previous">
+      <p class="section-num">07</p>
+      <h2>Compare with the period before</h2>
+      <p class="section-sub">Current and Previous.</p>
+      <p>The <b>Current / Previous</b> switch at the top right changes every number, bar, count and heat cell of the widget at once. <b>Previous</b> shows the period of equal length right before the one selected (the month before <i>This Month</i>, the six months before a six-month range, and so on). The footer says which one you are looking at: <i>Showing: Current scores</i> or <i>Showing: Previous scores</i>.</p>
+      <figure class="shot"><img src="images/ar-previous.png" alt="The widget on Previous: no conversations were rated in the period before, so scores show a dash and the band says None." loading="lazy"><figcaption>Previous — here nothing was rated in the period before, so the scores are dashes and the band is <i>None</i>.</figcaption></figure>
+      <div class="callout note"><b>Only agents of the selected period are listed.</b> In Previous you see the same processes and agents, with their scores from the earlier period; an agent who had nothing rated then shows <i>None</i>.</div>
+    </section>
+
+    <section id="score">
+      <p class="section-num">08</p>
+      <h2>How the score is worked out</h2>
+      <p class="section-sub">So the numbers can be trusted.</p>
+      <ul class="plain">
+        <li>Only conversations that have an <b>AI rating</b> are counted. A conversation without one is left out.</li>
+        <li>An agent’s score on a conversation is the score shown for that agent on the conversation’s <b>AI Insights</b>. The <b>customer is not counted</b>, and an agent with no score on a conversation is left out of it.</li>
+        <li>An agent’s score for the period is the <b>average</b> of their scores over all the conversations they were rated on. A process or channel average is built the same way.</li>
+        <li>The scores are from 0 to 100, in the bands Good, Average and Poor above.</li>
+      </ul>
+      <div class="callout note"><b>Tip.</b> The footer legend shows the three bands. To read the conversations behind a channel’s score, use the records list of that channel — the widget keeps the record ids for both the current and the previous period.</div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Dashboard — Agent Ratings Widget
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

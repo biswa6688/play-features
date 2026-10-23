@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speech Detection by Media Length — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#where">Where to find it</a></li>
+      <li><a href="#add">Add a band</a></li>
+      <li><a href="#turnon">Turn speech detection on</a></li>
+      <li><a href="#result">What happens to a recording</a></li>
+      <li><a href="#edit">Edit or delete a band</a></li>
+      <li><a href="#rules">Rules and limits</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Process Setting</span>
+      <h1>Speech Detection by Media Length</h1>
+      <p class="lede">Decide, for each process and channel, how much real speech a call or video must contain before PLAY generates its summary — and set a different percentage for short and long recordings.</p>
+      <div class="meta-row">
+        <span class="path"><b>Settings</b><span class="sep">→</span><b>Process</b><span class="sep">→</span><b>a process</b><span class="sep">→</span><b>Speech Detection</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">One percentage for each length of recording.</p>
+      <p>Before PLAY sends a call or video to the AI, it can check that the recording really contains talking and not just silence or noise (see <a href="../voice-percentage-detection/index.html">Voice Percentage Detection</a> for how the share of speech is measured). Until now one percentage applied to every recording. A 30-second video and a 20-minute call are not alike, so you can now set the share of speech needed <b>per media length</b>.</p>
+      <p>A <b>band</b> is one line of the setting: a <b>channel</b> (Call or Video), a <b>media length</b> range, and the <b>speech needed (%)</b> for recordings of that length.</p>
+      <div class="chips"><span><b>Call</b> · 5 to 10 min · 15%</span><span><b>Call</b> · 10 to 30 min · 15%</span><span><b>Video</b> · Under 1 min · 10%</span><span><b>Video</b> · 1 to 2 min · 15%</span></div>
+      <p class="tight">A recording is matched to the band its length falls in, and its share of speech must reach that band’s percentage.</p>
+    </section>
+
+    <section id="where">
+      <p class="section-num">02</p>
+      <h2>Where to find it</h2>
+      <p class="section-sub">Each process has its own bands.</p>
+      <p>Open <b>Settings → Process</b>, choose a process and click <b>Speech Detection</b> in the left menu. The table lists the bands of the process: the <b>channel</b> (with an <b>On</b> badge when speech detection is switched on for it), the <b>media length</b>, the <b>speech needed (%)</b> and the <b>edit</b> and <b>delete</b> icons.</p>
+      <figure class="shot"><img src="images/sd-bands.png" alt="The Speech Detection page of a process: a table of bands with channel, media length and speech needed." loading="lazy"><figcaption>The Speech Detection page: two bands for Call (detection on) and two for Video.</figcaption></figure>
+    </section>
+
+    <section id="add">
+      <p class="section-num">03</p>
+      <h2>Add a band</h2>
+      <p class="section-sub">What to do, step by step.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click Add band</div>
+          <div class="step-body">A new row opens at the bottom of the table.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose the channel</div>
+          <div class="step-body">Pick <b>Call</b> or <b>Video</b>. Only channels that are active in the process are offered.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose the media length</div>
+          <div class="step-body">Pick one of: <i>Under 1 min</i>, <i>1 to 2 min</i>, <i>2 to 5 min</i>, <i>5 to 10 min</i>, <i>10 to 30 min</i>, <i>30 to 60 min</i> or <i>60 min or more</i>. The lower end is included, the upper end is not (a 5-minute recording falls in <i>5 to 10 min</i>).</div>
+        </li>
+        <li>
+          <div class="step-title">Type the speech needed</div>
+          <div class="step-body">A percentage from 0 to 100 — for example <b>15</b> means at least 15% of the recording must be speech.</div>
+        </li>
+        <li>
+          <div class="step-title">Save</div>
+          <div class="step-body">Click the <b>Save</b> icon at the end of the row, or the cross to cancel.</div>
+        </li>
+      </ol>
+      <figure class="shot"><img src="images/sd-add-band.png" alt="A new band row with the channel list, the media length list and the percentage box." loading="lazy"><figcaption>Adding a band: channel, media length and speech needed.</figcaption></figure>
+    </section>
+
+    <section id="turnon">
+      <p class="section-num">04</p>
+      <h2>Turn speech detection on</h2>
+      <p class="section-sub">Bands do nothing until a channel switches the check on.</p>
+      <p>Open <b>Media Configuration → Call</b> (or <b>Video</b>) of the process, click the <b>edit</b> pencil and use the <b>Speech Detection</b> switch, then save. The switch can only be turned on once the process has at least one band for that channel; otherwise it is greyed out with the hint <i>Add duration bands on the Speech Detection page of this process to turn this on</i>.</p>
+      <figure class="shot"><img src="images/sd-media-config.png" alt="The Call channel configuration with the Encryption and Speech Detection switches." loading="lazy"><figcaption>The Speech Detection switch sits beside Encryption in the channel’s Media Configuration.</figcaption></figure>
+      <div class="callout note"><b>Needs the tenant setting.</b> The switch is shown only when speech detection is allowed for the tenant (<code>PLAY_TNT_ENABLE_SPEECH_RATIO_DETECTION</code> is <code>true</code>). Chat and email have no speech, so they have no switch.</div>
+    </section>
+
+    <section id="result">
+      <p class="section-num">05</p>
+      <h2>What happens to a recording</h2>
+      <p class="section-sub">The length of the recording decides.</p>
+      <div class="table-wrap"><table>
+<tr><th>Situation</th><th>Result</th></tr>
+<tr><td>Detection is <b>off</b> for the channel</td><td>No check. The summary is generated as usual.</td></tr>
+<tr><td>Detection is <b>on</b> and the length falls in a band, and the speech reaches the band’s percentage</td><td>The recording passes and its summary is generated.</td></tr>
+<tr><td>Detection is <b>on</b> and the speech is below the band’s percentage</td><td>PLAY warns <i>Low speech detected</i> and the transcript is refused, as described in <a href="../voice-percentage-detection/index.html">Voice Percentage Detection</a>.</td></tr>
+<tr><td>Detection is <b>on</b> and the length falls in <b>no band</b></td><td>The request is refused straight away, without measuring the sound: <i>Speech detection is on for this process, but no speech percentage is set for a recording of this length (…). Add a duration band that covers it on the Speech Detection page of the process, or turn speech detection off.</i></td></tr>
+</table></div>
+      <div class="callout warn"><b>Cover every length you receive.</b> Once speech detection is on, a recording whose length is in no band cannot be processed. Add a band for each length your calls and videos can have, or switch detection off for that channel.</div>
+      <p class="tight">The length used is the one sent with the request. When it is known, the answer comes at once, so a long recording is not made to wait while the sound is measured.</p>
+    </section>
+
+    <section id="edit">
+      <p class="section-num">06</p>
+      <h2>Edit or delete a band</h2>
+      <p class="section-sub">Changing what you already saved.</p>
+      <ul class="plain">
+        <li><b>Edit</b> — click the pencil on the row, change the media length or the percentage, then <b>Save</b>, or cancel.</li>
+        <li><b>Delete</b> — click the bin icon and confirm.</li>
+        <li><b>Last band.</b> You cannot delete the last band of a channel while speech detection is on for it. The delete icon is greyed out with the hint <i>Speech detection is on: turn it off in the Media Configuration to remove the last band</i>.</li>
+        <li>Only <b>one row</b> can be edited at a time; the other icons are greyed out until you save or cancel.</li>
+        <li>A band of a channel that is no longer active in the process cannot be edited (<i>This channel is not active in the process</i>).</li>
+      </ul>
+    </section>
+
+    <section id="rules">
+      <p class="section-num">07</p>
+      <h2>Rules and limits</h2>
+      <p class="section-sub">What PLAY checks when you save.</p>
+      <div class="table-wrap"><table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td>Channels</td><td>Call and Video only.</td></tr>
+<tr><td>One band per length</td><td>A channel can have only one band for each media length — otherwise <i>This media length is already set</i>.</td></tr>
+<tr><td>Media length</td><td>Must be chosen from the list — <i>Choose the media length</i>.</td></tr>
+<tr><td>Percentage</td><td>A number from 0 to 100 — <i>A percentage from 0 to 100</i>.</td></tr>
+<tr><td>Turning detection on</td><td>Needs at least one band for the channel — otherwise <i>Add the duration bands on the Speech Detection page before turning speech detection on</i>.</td></tr>
+</table></div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Process Settings — Speech Detection by Media Length
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

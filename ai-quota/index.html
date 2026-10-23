@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Quota — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#access">Who can open it</a></li>
+      <li><a href="#use">Current use</a></li>
+      <li><a href="#limits">Set the limits</a></li>
+      <li><a href="#alerts">Choose the alert percentages</a></li>
+      <li><a href="#email">Email alerts</a></li>
+      <li><a href="#webhook">Webhook alerts</a></li>
+      <li><a href="#paused">When a limit is reached</a></li>
+      <li><a href="#rules">Rules and limits</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Administration</span>
+      <h1>AI Quota</h1>
+      <p class="lede">Decide how many minutes of AI processing your organisation may use each day, week and month, see how much is used right now, and get an email or a webhook call before the limit is reached.</p>
+      <div class="meta-row">
+        <span class="path"><b>AI Quota</b><span class="sep">→</span><b>Current use</b><span class="sep">/</span><b>Limits</b><span class="sep">/</span><b>Alert at</b><span class="sep">/</span><b>Email alerts</b><span class="sep">/</span><b>Webhook alerts</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">A spending cap for AI, set in minutes.</p>
+      <p>Every call or video recording that PLAY sends to the AI back end uses minutes — the length of the recording. The <b>AI Quota</b> page lets you cap those minutes per <b>day</b>, per <b>week</b> and per <b>month</b>. When a cap is reached, PLAY stops sending new work to the AI until the period starts again, so the bill cannot run past what you planned.</p>
+      <ul class="plain">
+        <li><b>What uses minutes</b> — speech to text and insights of calls and videos, counted by the length of the recording.</li>
+        <li><b>What uses none</b> — chat and email, and simply opening a summary, rating or translation that already exists.</li>
+        <li><b>Periods</b> — the day, the week (Monday first) and the month, counted in the time zone you choose.</li>
+      </ul>
+      <figure class="shot"><img src="images/aq-current-use.png" alt="The Current use page: one card each for the daily, weekly and monthly limit with a progress bar, the minutes used and when the period renews." loading="lazy"><figcaption>The Current use page. Here the daily limit is used up, so the red notice says AI processing is paused and when it resumes.</figcaption></figure>
+    </section>
+
+    <section id="access">
+      <p class="section-num">02</p>
+      <h2>Who can open it</h2>
+      <p class="section-sub">Super admins only.</p>
+      <p>The <b>AI Quota</b> icon appears in the left bar only for the <b>super admins</b> of your installation — the users whose login id is in the list your PLAY administrator keeps in the Nucleus setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>. Anyone else does not see the icon, and typing the address of the page takes them back to the home page.</p>
+      <div class="callout note"><b>For your infrastructure team.</b> Add <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> to the Sys configuration of PLAY in Nucleus. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code> (spaces and capital letters do not matter). The list is read when the PLAY service starts, so restart the service after changing it. With no value, nobody can open this page or the Reported Issues page.</div>
+    </section>
+
+    <section id="use">
+      <p class="section-num">03</p>
+      <h2>Current use</h2>
+      <p class="section-sub">How much is used right now.</p>
+      <p>This is the first page. It shows one card for each period that has a limit:</p>
+      <div class="table-wrap"><table>
+<tr><th>On the card</th><th>Meaning</th></tr>
+<tr><td>The percentage</td><td>How much of the limit is used (it can go a little past 100%, see <a href="#paused">When a limit is reached</a>).</td></tr>
+<tr><td>The bar</td><td>The same figure as a bar — green while there is room, red once the limit is reached.</td></tr>
+<tr><td>“30.67 of 30 min”</td><td>Minutes used so far in the period, and the limit.</td></tr>
+<tr><td>“Renews …” / “Resumes …”</td><td>When the period starts again. While a limit is reached it says when AI processing <b>resumes</b>.</td></tr>
+</table></div>
+      <p class="tight">A period with no limit shows only the minutes used. The page refreshes by itself while it is open.</p>
+    </section>
+
+    <section id="limits">
+      <p class="section-num">04</p>
+      <h2>Set the limits</h2>
+      <p class="section-sub">Turn the quota on and enter the minutes.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open Limits</div>
+          <div class="step-body">Click <b>Limits</b> in the menu next to the page.</div>
+        </li>
+        <li>
+          <div class="step-title">Switch AI quota on</div>
+          <div class="step-body">The <b>AI quota on</b> switch applies the limits. While it is off, nothing is capped and the fields below are greyed out.</div>
+        </li>
+        <li>
+          <div class="step-title">Enter the minutes</div>
+          <div class="step-body">Type the <b>Daily</b>, <b>Weekly</b> and/or <b>Monthly</b> limit in minutes. Leave a field empty for no limit on that period.</div>
+        </li>
+        <li>
+          <div class="step-title">Pick the time zone</div>
+          <div class="step-body">Choose the <b>Time zone of the periods</b>. A new day, week and month begin at midnight in this zone.</div>
+        </li>
+        <li>
+          <div class="step-title">Save</div>
+          <div class="step-body">Click the <b>Save</b> icon at the end of the card. The round arrow beside it discards what you changed. A small dot next to a menu item shows that the page has unsaved changes.</div>
+        </li>
+      </ol>
+      <figure class="shot"><img src="images/aq-limits.png" alt="The Limits page with the AI quota switch, the three limits in minutes and the time zone." loading="lazy"><figcaption>The Limits page: 30 minutes a day, 180 a week and 750 a month, counted in the Asia/Kolkata time zone.</figcaption></figure>
+    </section>
+
+    <section id="alerts">
+      <p class="section-num">05</p>
+      <h2>Choose the alert percentages</h2>
+      <p class="section-sub">Be told before the limit is reached.</p>
+      <p>On <b>Alert at</b> you list the percentages of a limit at which an alert is sent — by default <b>80</b>, <b>90</b> and <b>100</b>. Type a percentage from 1 to 100 and add it; remove one with the <b>×</b> on its chip. Each percentage is announced <b>once per period</b>, for each limit that reaches it.</p>
+      <figure class="shot"><img src="images/aq-alerts.png" alt="The Alert at page with the percentages 80, 90 and 100 as chips." loading="lazy"><figcaption>The Alert at page. Up to 10 percentages can be set.</figcaption></figure>
+      <div class="callout note"><b>Good to know.</b> If you raise a limit later, its percentages become new again and are announced once more in that period. At <b>100%</b> AI processing is paused as well as announced.</div>
+    </section>
+
+    <section id="email">
+      <p class="section-num">06</p>
+      <h2>Email alerts</h2>
+      <p class="section-sub">Send the alert through your own mail server.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Switch Send emails on</div>
+          <div class="step-body">Then fill in your SMTP server: <b>SMTP host</b>, <b>Port</b>, <b>User name</b>, <b>Password</b> and the <b>Sender address</b>. Tick <b>Secure connection</b> for SSL/TLS (usually port 465); otherwise STARTTLS is used when the server offers it.</div>
+        </li>
+        <li>
+          <div class="step-title">Add the recipients</div>
+          <div class="step-body">Type an email address and click <b>Add</b>. Up to 20 addresses are allowed; remove one with its <b>×</b>.</div>
+        </li>
+        <li>
+          <div class="step-title">Write the message (optional)</div>
+          <div class="step-body">Change the <b>Subject</b> and <b>Message</b>, and click a placeholder chip such as <i>{{percentUsed}}</i> to insert it where the cursor is. <b>Preview with sample figures</b> shows how it will read. <b>Use the standard text</b> brings the original wording back.</div>
+        </li>
+        <li>
+          <div class="step-title">Save, then test</div>
+          <div class="step-body">Click <b>Save</b>, then <b>Send test email</b> to check that the mail arrives.</div>
+        </li>
+      </ol>
+      <figure class="shot"><img src="images/aq-email.png" alt="The Email alerts page: SMTP settings, the recipients, the email subject and message with placeholder chips and a preview." loading="lazy"><figcaption>The Email alerts page, with example server and address values.</figcaption></figure>
+      <p class="tight">The saved password is never shown again: the box says <i>Password (saved, leave empty to keep)</i>. Leave it empty to keep it, or tick <b>Remove the saved password</b> to delete it. The password is stored encrypted.</p>
+      <div class="callout note"><b>Test buttons use what is saved.</b> If the page has unsaved changes the test button is greyed out with the hint <i>Save the changes first</i>; if the channel is not switched on and saved it says <i>Switch it on and save first</i>.</div>
+    </section>
+
+    <section id="webhook">
+      <p class="section-num">07</p>
+      <h2>Webhook alerts</h2>
+      <p class="section-sub">Send the same alert to your own application.</p>
+      <p>Switch <b>Call the webhook</b> on and enter the <b>Webhook URL</b> (an <code>http</code> or <code>https</code> address). PLAY sends each alert to it as a JSON <b>POST</b>. Click <b>Send test webhook</b> after saving to see that it arrives.</p>
+      <p>The <b>Secret</b> is optional. When you set one, every call carries an <code>X-Play-Signature</code> header — <code>sha256=</code> followed by the HMAC SHA-256 of the request body made with your secret — so your application can check that the call really came from PLAY. Every call also carries an <code>X-Play-Event</code> header with the value <code>ai_quota_threshold</code>.</p>
+      <figure class="shot"><img src="images/aq-webhook.png" alt="The Webhook alerts page with the switch, the webhook URL, the optional secret and the test button." loading="lazy"><figcaption>The Webhook alerts page, with an example address.</figcaption></figure>
+    </section>
+
+    <section id="paused">
+      <p class="section-num">08</p>
+      <h2>When a limit is reached</h2>
+      <p class="section-sub">What users and systems see.</p>
+      <ul class="plain">
+        <li>Every request that would use the AI — speech to text and insights, sentiment, summary, rating, translation — is <b>refused</b> with a message such as <i>The AI quota is used up: 600 of 600 minutes for the daily limit. AI processing resumes 24 Oct 2026, 00:00 (Asia/Kolkata).</i></li>
+        <li>This also stops the <b>automatic</b> processing of new recordings.</li>
+        <li>Nothing has to be switched back on. The pause ends by itself when the period renews.</li>
+        <li>Work that was already running when the limit was reached is allowed to finish, so a limit can be passed slightly.</li>
+      </ul>
+      <div class="callout warn"><b>Watch the shortest period.</b> A day that is used up pauses the AI for the rest of that day even if the week and the month still have room.</div>
+    </section>
+
+    <section id="rules">
+      <p class="section-num">09</p>
+      <h2>Rules and limits</h2>
+      <p class="section-sub">What PLAY checks when you save.</p>
+      <div class="table-wrap"><table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td>Limit size</td><td>0 to 10,000,000 minutes. Empty or 0 means no limit for that period.</td></tr>
+<tr><td>Order of the limits</td><td>A shorter period cannot allow more than a longer one: daily ≤ weekly ≤ monthly.</td></tr>
+<tr><td>Quota on</td><td>At least one limit must be set before you can turn it on.</td></tr>
+<tr><td>Alert percentages</td><td>1 to 10 whole numbers from 1 to 100.</td></tr>
+<tr><td>Email</td><td>When on: SMTP host, port, a valid sender address and at least one recipient are required; up to 20 recipients.</td></tr>
+<tr><td>Webhook</td><td>When on: a valid <code>http</code> or <code>https</code> address is required.</td></tr>
+<tr><td>Who can change it</td><td>Administrators only on the server; the page itself is shown to super admins.</td></tr>
+</table></div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Administration — AI Quota
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
