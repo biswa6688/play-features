@@ -52,8 +52,19 @@
       <p class="section-num">02</p>
       <h2>Who can open it</h2>
       <p class="section-sub">Super admins only.</p>
-      <p>The <b>AI Quota</b> icon appears in the left bar only for the <b>super admins</b> of your installation — the users whose login id is in the list your PLAY administrator keeps in the Nucleus setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>. Anyone else does not see the icon, and typing the address of the page takes them back to the home page.</p>
-      <div class="callout note"><b>For your infrastructure team.</b> Add <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> to the Sys configuration of PLAY in Nucleus. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code> (spaces and capital letters do not matter). The list is read when the PLAY service starts, so restart the service after changing it. With no value, nobody can open this page or the Reported Issues page.</div>
+      <p>The <b>AI Quota</b> icon appears in the left bar only when <b>both</b> of these are true:</p>
+      <ul class="plain">
+        <li><b>The tab is switched on for your tenant</b> — the tenant setting <code>PLAY_TNT_ENABLE_AI_QUOTA_TAB</code> is <code>true</code>. It is off by default, so until it is turned on nobody sees the icon, super admins included.</li>
+        <li><b>You are a super admin</b> — your login id is in the list kept in the system setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>.</li>
+      </ul>
+      <p>Anyone else does not see the icon, and typing the address of the page takes them back to the home page.</p>
+      <div class="callout note"><b>For your infrastructure team.</b>
+        <ul class="plain">
+          <li><code>PLAY_TNT_ENABLE_AI_QUOTA_TAB</code> — a <b>tenant</b> setting, so it is set for each tenant separately. Use <code>true</code> to show the AI Quota tab for that tenant; <code>false</code>, empty or missing hides it. The web application reads it when the user signs in, so a user who is already signed in sees the change after signing in again.</li>
+          <li><code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> — a <b>system</b> setting, added to the Sys configuration of PLAY in Nucleus and shared by all tenants. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code> (spaces and capital letters do not matter). The list is read when the PLAY service starts, so restart the service after changing it. With no value, nobody can open this page or the Reported Issues page.</li>
+        </ul>
+        The ADMIN role alone is not enough: a user who is not in the super admin list never sees the tab, even when it is switched on.
+      </div>
     </section>
 
     <section id="use">
@@ -152,8 +163,10 @@
       <ul class="plain">
         <li>Every request that would use the AI — speech to text and insights, sentiment, summary, rating, translation — is <b>refused</b> with a message such as <i>The AI quota is used up: 600 of 600 minutes for the daily limit. AI processing resumes 24 Oct 2026, 00:00 (Asia/Kolkata).</i></li>
         <li>This also stops the <b>automatic</b> processing of new recordings.</li>
+        <li>A <b>call or video</b> is also refused when its minutes <b>do not fit</b> in what is left of a limit, before anything is generated. With 5 of 30 daily minutes left, an 8 minute call is refused with a message such as <i>This recording needs 8 minutes but only 5 of 30 minutes are left for the daily limit (25 used). AI processing resumes …</i>. A shorter recording that fits is still accepted. The check covers the daily, weekly and monthly limit, and the pause lasts until the latest period that blocked it renews.</li>
+        <li>The minutes are the length sent with the request, or else the length of the call. Chat and email use none, so they are never refused for lack of minutes.</li>
         <li>Nothing has to be switched back on. The pause ends by itself when the period renews.</li>
-        <li>Work that was already running when the limit was reached is allowed to finish, so a limit can be passed slightly.</li>
+        <li>Work that was already running when the limit was reached is allowed to finish, so a limit can be passed slightly. Because a recording that does not fit is refused up front, a new recording no longer pushes a limit past its size.</li>
       </ul>
       <div class="callout warn"><b>Watch the shortest period.</b> A day that is used up pauses the AI for the rest of that day even if the week and the month still have room.</div>
     </section>
@@ -166,6 +179,7 @@
 <tr><th>Rule</th><th>Detail</th></tr>
 <tr><td>Limit size</td><td>0 to 10,000,000 minutes. Empty or 0 means no limit for that period.</td></tr>
 <tr><td>Order of the limits</td><td>A shorter period cannot allow more than a longer one: daily ≤ weekly ≤ monthly.</td></tr>
+<tr><td>Recording size</td><td>A call or video whose minutes are more than what is left in the day, week or month is refused; the limit itself is never exceeded by a new request.</td></tr>
 <tr><td>Quota on</td><td>At least one limit must be set before you can turn it on.</td></tr>
 <tr><td>Alert percentages</td><td>1 to 10 whole numbers from 1 to 100.</td></tr>
 <tr><td>Email</td><td>When on: SMTP host, port, a valid sender address and at least one recipient are required; up to 20 recipients.</td></tr>

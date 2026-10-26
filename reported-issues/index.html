@@ -48,7 +48,7 @@
       <p class="section-num">02</p>
       <h2>Report an issue</h2>
       <p class="section-sub">For every user, from the record itself.</p>
-      <p>Open a recording and click the <b>AI Insights</b> tab. When the record already has an AI summary, the <b>Report Issue</b> button appears at the right end of the tabs.</p>
+      <p>Open a recording and click the <b>AI Insights</b> tab. When the record already has an AI summary, the <b>Report Issue</b> button appears at the right end of the tabs. It also appears when generating the summary <b>failed</b>, so a failure can be reported too.</p>
       <figure class="shot"><img src="images/ri-report-button.png" alt="A call record on the AI Insights tab with the Report Issue button at the right end of the tabs." loading="lazy"><figcaption>The Report Issue button sits at the right of the AI Insights tab.</figcaption></figure>
       <ol class="steps">
         <li>
@@ -64,20 +64,49 @@
           <div class="step-body">Under <b>What is the issue?</b> write what is inaccurate, outdated or misleading. This box is required and takes up to 2,000 characters.</div>
         </li>
         <li>
+          <div class="step-title">Include the error (only after a failed summary)</div>
+          <div class="step-body">When the summary of the record failed, the window offers the box <b>Include the error that failed the summary generation</b>. Tick it to see the error text and send it with the report; leave it clear to send only your description. The error is kept up to 2,000 characters.</div>
+        </li>
+        <li>
           <div class="step-title">Submit</div>
           <div class="step-body">Click <b>Submit Report</b>. The feedback is shared with the administrator.</div>
         </li>
       </ol>
       <figure class="shot"><img src="images/ri-report-dialog-filled.png" alt="The Report AI response window with the section list and a typed description." loading="lazy"><figcaption>The Report AI response window with a description typed in.</figcaption></figure>
-      <div class="callout note"><b>Not seeing the button?</b> It appears only when the feature is switched on for your tenant (the tenant setting <code>PLAY_TNT_ENABLE_REPORT_AI_ISSUE</code> is <code>true</code>) and the record already has generated insights.</div>
+      <h3>After you report</h3>
+      <p>Only one report can be active for a record. Once it is sent, the <b>Report Issue</b> button is replaced on the AI Insights tab by:</p>
+      <ul class="plain">
+        <li><b>A status chip</b> — <i>Issue: Open</i> or <i>Issue: In Review</i>, in the colours of the Reported Issues list. Click it to read the report (read-only; its status is changed on the Reported Issues page by the administrator).</li>
+        <li><b>An Edit button</b> — shown to the user who reported the issue and to administrators, while the report is Open or In Review. It opens the same window, filled with the report. Change the section or the text and click <b>Save Changes</b>. The error that was sent with the report cannot be changed, and the edit does not alter the status.</li>
+      </ul>
+      <p>When the report is <b>Resolved</b> or <b>Rejected</b> it can no longer be edited, the chip disappears and the <b>Report Issue</b> button returns, so a new issue can be reported. If someone tries to report a second issue while one is still Open or In Review, PLAY refuses it and says the existing report can be edited.</p>
+      <div class="callout note"><b>Not seeing the button?</b> It appears only when both of these are true:
+        <ul class="plain">
+          <li>The feature is switched on for your tenant: the tenant setting <code>PLAY_TNT_ENABLE_REPORT_AI_ISSUE</code> is <code>true</code>. It is off by default and is set for each tenant separately; <code>false</code>, empty or missing hides the button for every user of that tenant.</li>
+          <li>The record already has generated insights, or generating them failed.</li>
+        </ul>
+        This setting only controls the button for reporting. It does not decide who can see the list of reports (see <a href="#access">Who can see the list</a>).
+      </div>
     </section>
 
     <section id="access">
       <p class="section-num">03</p>
       <h2>Who can see the list</h2>
       <p class="section-sub">Super admins only.</p>
-      <p>The <b>Reported Issues</b> icon in the left bar is shown only to the <b>super admins</b> of your installation, and only when the feature is switched on for the tenant. Super admins are the users whose login id is in the Nucleus setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>. For anyone else the icon is hidden, and opening the address by hand returns them to the home page.</p>
-      <div class="callout note"><b>For your infrastructure team.</b> Add <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> to the Sys configuration of PLAY in Nucleus, in every environment. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code>. Spaces and capital letters do not matter. The list is read when the PLAY service starts, so restart the service after changing it. If the setting is missing or empty, nobody sees the list.</div>
+      <p>The <b>Reported Issues</b> icon in the left bar is shown only when <b>both</b> of these are true:</p>
+      <ul class="plain">
+        <li><b>The tab is switched on for your tenant</b> — the tenant setting <code>PLAY_TNT_ENABLE_REPORT_AI_ISSUES_TAB</code> is <code>true</code>. It is off by default, so until it is turned on nobody sees the icon, super admins included.</li>
+        <li><b>You are a super admin</b> — your login id is in the list kept in the system setting <code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code>.</li>
+      </ul>
+      <p>For anyone else the icon is hidden, and opening the address by hand returns them to the home page.</p>
+      <div class="callout note"><b>For your infrastructure team.</b> Three settings are involved:
+        <ul class="plain">
+          <li><code>PLAY_TNT_ENABLE_REPORT_AI_ISSUE</code> — a <b>tenant</b> setting. <code>true</code> shows the <i>Report Issue</i> button on the AI Insights tab of a record, so users can report problems. <code>false</code>, empty or missing hides it. Default: off.</li>
+          <li><code>PLAY_TNT_ENABLE_REPORT_AI_ISSUES_TAB</code> — a <b>tenant</b> setting. <code>true</code> shows the <i>Reported Issues</i> list in the left bar, to super admins only. <code>false</code>, empty or missing hides it. Default: off. It is independent of the setting above: reports can be collected without showing the list, and the list can be shown without the button.</li>
+          <li><code>PLAY_SYS_SUPER_ADMIN_USER_NAME</code> — a <b>system</b> setting, added to the Sys configuration of PLAY in Nucleus in every environment and shared by all tenants. The value is the login ids separated by commas, for example <code>PlaySuAdmin, PlayAdmin</code>. Spaces and capital letters do not matter. The list is read when the PLAY service starts, so restart the service after changing it. If the setting is missing or empty, nobody sees the list. The same list decides who sees the AI Quota page.</li>
+        </ul>
+        The two tenant settings are read when a user signs in, so a user who is already signed in sees the change after signing in again.
+      </div>
     </section>
 
     <section id="list">
@@ -114,7 +143,7 @@
       <p class="section-num">06</p>
       <h2>Review an issue and change its status</h2>
       <p class="section-sub">Click a row to open it.</p>
-      <p>The window shows every detail of the report, the full text of the issue, the <b>Status History</b> (each status with its date and who set it), and — while the issue is not closed — a <b>Change status to</b> list.</p>
+      <p>The window shows every detail of the report, the full text of the issue, the <b>Summary generation error</b> (only when the reporter sent it with the report), the <b>Status History</b> (each status with its date and who set it), and — while the issue is not closed — a <b>Change status to</b> list.</p>
       <figure class="shot"><img src="images/ri-details.png" alt="The Reported Issue window with the record details, the issue text, the status history and the Change status to list." loading="lazy"><figcaption>The details of a report that is In Review.</figcaption></figure>
       <ol class="steps">
         <li>
@@ -148,7 +177,10 @@
 <tr><th>Rule</th><th>Detail</th></tr>
 <tr><td>Issue text</td><td>Required, up to 2,000 characters.</td></tr>
 <tr><td>Resolution</td><td>Required to set Resolved or Rejected, up to 2,000 characters.</td></tr>
-<tr><td>Report Issue button</td><td>Needs the tenant setting on and a record with generated insights.</td></tr>
+<tr><td>Report Issue button</td><td>Needs the tenant setting on, and a record with generated insights or a failed summary generation. Hidden while the record has a report that is Open or In Review.</td></tr>
+<tr><td>One active report</td><td>A record can have one report that is Open or In Review. A new one can be made once it is Resolved or Rejected.</td></tr>
+<tr><td>Editing a report</td><td>Only while Open or In Review, and only by the user who reported it or an administrator. The issue text is required (up to 2,000 characters); the section can be changed.</td></tr>
+<tr><td>Generation error</td><td>Optional, sent only when the reporter ticks the box; up to 2,000 characters.</td></tr>
 <tr><td>The list and status changes</td><td>Administrators only on the server; the menu item is shown to super admins.</td></tr>
 <tr><td>Page size</td><td>20 reports per page.</td></tr>
 </table></div>
