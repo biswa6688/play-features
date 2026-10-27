@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keywords Spotted Widget — PLAY Feature Guide</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#overview">What this feature does</a></li>
+      <li><a href="#where">Where to find it</a></li>
+      <li><a href="#period">Choose the period</a></li>
+      <li><a href="#processes">Pick a process</a></li>
+      <li><a href="#keywords">Look at the keywords</a></li>
+      <li><a href="#detail">One keyword in detail</a></li>
+      <li><a href="#compare">Compare with the period before</a></li>
+      <li><a href="#small">Using it in a smaller widget</a></li>
+      <li><a href="#counting">How the numbers are counted</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <span class="kicker">Dashboard</span>
+      <h1>Keywords Spotted Widget</h1>
+      <p class="lede">See which keywords come up most in your conversations — across all processes or one at a time, on every channel — and how that compares with the period before.</p>
+      <div class="meta-row">
+        <span class="path"><b>Dashboard</b><span class="sep">→</span><b>Keywords Spotted</b></span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <p class="section-num">01</p>
+      <h2>What this feature does</h2>
+      <p class="section-sub">One place to see what customers talk about.</p>
+      <p>Every conversation that has <b>AI Insights</b> lists the keywords that were spotted in it, with how many times each came up. The <b>Keywords Spotted</b> widget gathers those counts for a period and shows them in three parts: the <b>processes</b> on the left, the <b>keywords</b> in the middle, and the <b>channels</b> one keyword came up on, on the right. The number of times a keyword came up is called its <b>mentions</b>.</p>
+      <figure class="shot"><img src="images/ks-widget.png" alt="The Keywords Spotted widget in full screen: the period buttons at the top right, the process list on the left, the keywords as a cloud of coloured pills in the middle and the channel view of one keyword on the right." loading="lazy"><figcaption>The Keywords Spotted widget, showing This Year.</figcaption></figure>
+    </section>
+
+    <section id="where">
+      <p class="section-num">02</p>
+      <h2>Where to find it</h2>
+      <p class="section-sub">It sits on the Dashboard.</p>
+      <p>Open the <b>Dashboard</b> (the first icon in the left bar) and scroll to <b>Keywords Spotted</b>. Like the other dashboard widgets it can be moved and resized, and it has a full-screen button at its top right corner. The line under the title tells you what you are looking at — <i>AI Insight Summary · period · number of records analyzed</i>. The <b>records analyzed</b> are the conversations of the period that have AI Insights.</p>
+    </section>
+
+    <section id="period">
+      <p class="section-num">03</p>
+      <h2>Choose the period</h2>
+      <p class="section-sub">Four quick choices.</p>
+      <div class="table-wrap"><table>
+<tr><th>Button</th><th>Shows</th><th>Compared with</th></tr>
+<tr><td>Day</td><td>Today</td><td>Yesterday</td></tr>
+<tr><td>Week</td><td>The current week, Monday to Sunday</td><td>Last week</td></tr>
+<tr><td>Month</td><td>The current month</td><td>Last month</td></tr>
+<tr><td>Year</td><td>The current year</td><td>Last year</td></tr>
+</table></div>
+      <p class="tight">The widget opens on <b>Week</b>. Choosing another button loads the keywords of that period again.</p>
+    </section>
+
+    <section id="processes">
+      <p class="section-num">04</p>
+      <h2>Pick a process</h2>
+      <p class="section-sub">The left column.</p>
+      <p>The first card, <b>All processes</b>, adds up every process and is selected when the widget opens. Below it each <b>process</b> has a card with its total mentions, a bar, the number of different keywords, and how the mentions changed since the period before. Every process has its own colour, which you will see again on its keywords. Click a card to look at that process only. The first five are shown; click <b>Load more processes</b> for the rest.</p>
+      <ul class="plain">
+        <li>The <b>sort</b> icon orders the cards by <b>Mentions</b> or by <b>Name</b>.</li>
+        <li>The <b>funnel</b> icon filters the cards by process name. A process the filter hides can no longer be selected, so the widget returns to <b>All processes</b>.</li>
+      </ul>
+    </section>
+
+    <section id="keywords">
+      <p class="section-num">05</p>
+      <h2>Look at the keywords</h2>
+      <p class="section-sub">The middle column.</p>
+      <p>The heading tells you how many keywords there are for what you selected. The <b>eye</b> icon switches between two views:</p>
+      <ul class="plain">
+        <li><b>Pills</b> — every keyword is a coloured pill. The more mentions a keyword has, the bigger its text. The most mentioned keyword sits in the middle and the others are laid out around it, so the keywords that matter most are the ones you see first. The pill also carries its mentions as a small number (1.6k stands for 1,602). The first 60 are shown; click <b>Load more keywords</b> for more.</li>
+        <li><b>Table</b> — one row for each keyword, with its rank <b>#</b>, the <b>Keyword</b>, its <b>Process</b>, its <b>Mentions</b> and the change <b>vs</b> the period before. The first 25 are shown. Here the sort icon orders the rows by <b>Mentions</b> or by <b>Name</b>.</li>
+      </ul>
+      <figure class="shot"><img src="images/ks-table.png" alt="The Keywords Spotted widget in the Table view: a numbered list of keywords with the process, the mentions and the change against last year." loading="lazy"><figcaption>The Table view — the keywords in order of mentions.</figcaption></figure>
+      <p>The <b>funnel</b> icon filters the keywords by name. The colours help you read the pills:</p>
+      <ul class="plain">
+        <li>With <b>All processes</b> selected, a pill has the colour of the process the keyword was spotted in the most.</li>
+        <li>With <b>one process</b> selected, the pills would all be the same colour, so they take a mix of colours instead. A keyword always keeps the same colour, whatever you filter or sort.</li>
+      </ul>
+      <figure class="shot"><img src="images/ks-process.png" alt="The widget with one process selected: the keywords of that process as pills in several colours." loading="lazy"><figcaption>One process selected — the pills of that process in a mix of colours.</figcaption></figure>
+      <div class="callout note"><b>The solid pill.</b> The pill (or table row) that is filled with colour is the keyword shown on the right. When you have not picked one, it is the most mentioned keyword.</div>
+    </section>
+
+    <section id="detail">
+      <p class="section-num">06</p>
+      <h2>One keyword in detail</h2>
+      <p class="section-sub">The right column.</p>
+      <p>Click a keyword, in either view, to see it on the right under <b>Channel-wise</b>. You see its name, the process it was spotted in the most (with <b>+1</b>, <b>+2</b> … when it came up in other processes too — hover over it to see them all), and a line with its mentions, the period and its rank, for example <i>67 mentions · 2026 · #1</i>, followed by its change since the period before.</p>
+      <ul class="plain">
+        <li><b>Channels</b> — a bar for each channel the keyword came up on (call, chat, email or video), with the number of mentions and the share of the total.</li>
+        <li><b>Open the records</b> — click a channel to open the conversations behind that number in the records list, in a new tab.</li>
+        <li>A short sentence under the bars tells you which channel carries most of the mentions, for example <i>Call carries 78% of the mentions of “order”</i>.</li>
+      </ul>
+      <p class="tight">The bar at the bottom of the widget repeats the chosen keyword with its mentions, rank, change and process. When none is chosen it shows the total mentions instead. Next to it the <b>processes</b> are listed with their colours; click one to look at that process. When there are too many to fit, the rest are counted as <i>+N more</i>.</p>
+    </section>
+
+    <section id="compare">
+      <p class="section-num">07</p>
+      <h2>Compare with the period before</h2>
+      <p class="section-sub">Up, down or new.</p>
+      <p>Wherever you see a change, it compares the period with the period of equal length right before it (see the table in <a href="#period">Choose the period</a>).</p>
+      <div class="table-wrap"><table>
+<tr><th>You see</th><th>It means</th></tr>
+<tr><td>▲ with a percentage, in green</td><td>More mentions than in the period before</td></tr>
+<tr><td>▼ with a percentage, in red</td><td>Fewer mentions than in the period before</td></tr>
+<tr><td>0%</td><td>The same number of mentions</td></tr>
+<tr><td>New</td><td>Nothing was spotted in the period before</td></tr>
+</table></div>
+      <div class="callout note"><b>Only what came up in this period is listed.</b> A keyword that was spotted before but not in the selected period does not appear, even though it would show a drop.</div>
+    </section>
+
+    <section id="small">
+      <p class="section-num">08</p>
+      <h2>Using it in a smaller widget</h2>
+      <p class="section-sub">Half a row, a small screen or a phone.</p>
+      <p>The widget arranges itself by its own width, so it works the same in a half-width cell as on a small screen. When it is wide enough (a full row or full screen) all three parts are shown together. In a narrower widget:</p>
+      <ul class="plain">
+        <li>The <b>channel view stays hidden</b> while the process list is shown.</li>
+        <li><b>Click a keyword</b> and the process list closes; the channel view opens beside the keywords.</li>
+        <li>The <b>×</b> button on the channel view closes it and brings the process list back.</li>
+        <li>In a very narrow widget the process list and the keywords are stacked one above the other.</li>
+      </ul>
+      <p>The text of the pills also becomes smaller as the widget gets narrower, and they are laid out again to fit, so the keywords stay readable and nothing is cut off.</p>
+      <figure class="shot"><img src="images/ks-small.png" alt="The widget in a half-width cell: the process list and the keyword pills, with the channel view hidden." loading="lazy"><figcaption>A narrow widget — the process list and the keywords.</figcaption></figure>
+      <figure class="shot"><img src="images/ks-small-keyword.png" alt="The same widget after a keyword was clicked: the process list is replaced by the channel view, which has a close button." loading="lazy"><figcaption>After clicking a keyword — the channel view opens beside the keywords.</figcaption></figure>
+    </section>
+
+    <section id="counting">
+      <p class="section-num">09</p>
+      <h2>How the numbers are counted</h2>
+      <p class="section-sub">So the numbers can be trusted.</p>
+      <ul class="plain">
+        <li>Only conversations that have <b>AI Insights</b> are counted. A conversation without them is left out, and is not part of the <i>records analyzed</i>.</li>
+        <li>The keywords of a conversation are the ones listed as <b>Keyword Spotted</b> on its AI Insights, with how many times each came up. The keywords themselves come from the process’s keyword list — see <a href="../keyword-aliases/index.html">Keywords and Aliases</a> for how to add them.</li>
+        <li><b>Mentions</b> are the sum of those counts over all the conversations of the period. A process total, a keyword total and a channel total are all built the same way, so the channels of a keyword always add up to its mentions.</li>
+        <li>A keyword spotted in more than one process is listed <b>once</b> under <b>All processes</b>, with its mentions added together; under a single process only that process’s mentions are counted.</li>
+        <li>A keyword whose count is not above zero is not a mention and is left out.</li>
+      </ul>
+      <div class="callout note"><b>Tip.</b> To read the conversations behind a number, click its channel on the right; they open in the records list in a new tab.</div>
+    </section>
+
+    <footer class="doc-foot">
+      PLAY · Dashboard — Keywords Spotted Widget
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

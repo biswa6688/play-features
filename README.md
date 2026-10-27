@@ -24,5 +24,6 @@ Standalone HTML documentation for individual PLAY features. Each feature gets it
 | Reported Issues | [`reported-issues/`](reported-issues/index.html) | Reporting a problem with AI insights from a record, the administrators' Reported Issues list (search, filter, sort), and the forward-only status (Open, In Review, Resolved, Rejected) with a dated history. |
 | Agent Ratings Widget | [`agent-ratings-widget/`](agent-ratings-widget/index.html) | The dashboard widget that scores agents per process and channel for a period and the period before it, with the Agent, Rating Type and Heat Grid views. |
 | Speech Detection by Media Length | [`speech-detection-bands/`](speech-detection-bands/index.html) | Setting the speech percentage a call or video needs per media length (duration bands) for each process, turning detection on per channel, and what happens when no band covers a length. |
+| Keywords Spotted Widget | [`keywords-spotted/`](keywords-spotted/index.html) | The dashboard widget that shows which keywords come up most in conversations, per process and channel, for a period and the one before, with the Pills and Table views and a channel-wise view of one keyword. |
 
 When adding a new feature folder here, add a row to this table.
